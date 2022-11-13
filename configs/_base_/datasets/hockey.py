@@ -1,6 +1,13 @@
 #TODO fix colors
 dataset_info = dict(
     dataset_name='hockey',
+    paper_info=dict(
+        author='None',
+        title='Hockey Dataset',
+        container='None',
+        year='2022',
+        homepage='none',
+    ),
     keypoint_info={
         0:
         dict(name='head', id=0, color=[51, 153, 255], type='upper', swap=''),
