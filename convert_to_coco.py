@@ -79,7 +79,6 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
                             annotation["num_keypoints"] = num_keypoints
                             annotation["image_id"] = image_id
                             annotation["category_id"] = int(key[1:])
-                            annotation["category_id"] = int(key[1:])
                             annotation["id"] = annotation_id
 
                             annotation_id += 1
