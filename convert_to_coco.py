@@ -25,6 +25,7 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
                 coco_dict["annotations"] = []
                 coco_dict["categories"] = []
 
+                # images
                 for game_file in os.listdir(game_dir_full_path):
                     if game_file.endswith(".png"):
                         id = int(re.search("[0-9]*(?=\.png)", game_file).group(0))
@@ -42,7 +43,11 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
                         }
                         coco_dict["images"].append(image_dict)
 
+                # annotations and categories
                 image_id = 0
+                annotation_id = (
+                    0  # increment this to have unique id for each annotation
+                )
                 checked_categories = False
                 for frame in json_file:
                     for key, value in frame.items():
@@ -74,6 +79,10 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
                             annotation["num_keypoints"] = num_keypoints
                             annotation["image_id"] = image_id
                             annotation["category_id"] = int(key[1:])
+                            annotation["category_id"] = int(key[1:])
+                            annotation["id"] = annotation_id
+
+                            annotation_id += 1
 
                             coco_dict["annotations"].append(annotation)
 
