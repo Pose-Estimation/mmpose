@@ -57,21 +57,23 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
                                 coco_dict["categories"].append(
                                     {
                                         "id": int(key[1:]),
-                                        "name": key,
+                                        "name": "person",
                                     }
                                 )
 
                             annotation = {}
 
-                            num_keypoints = len(value) // 3
                             annotation["keypoints"] = []
-                            keypoints = np.split(np.array(value), num_keypoints)
+                            keypoints = np.split(np.array(value), len(value) // 3)
+                            num_keypoints = 0
                             for x, y, _ in keypoints:
-                                v = 0 if (x == y == 0) else 2
+                                if x == y == 0:
+                                    v = 0
+                                else:
+                                    v = 2
+                                    num_keypoints += 1
 
-                                annotation["keypoints"].append(x)
-                                annotation["keypoints"].append(y)
-                                annotation["keypoints"].append(v)
+                                annotation["keypoints"].extend([x, y, v])
 
                             annotation["num_keypoints"] = num_keypoints
                             annotation["image_id"] = image_id
