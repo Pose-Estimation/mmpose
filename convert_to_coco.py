@@ -15,9 +15,11 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
         not os.path.isfile(video_dir_full_path)
         and video_dir_name in VIDEO_POSE_TYPES.keys()
     ):
+        print(f"Converting custom jsons in {video_dir_name} to coco format:")
         for game_dir_name in os.listdir(video_dir_full_path):
             game_dir_full_path = os.path.join(video_dir_full_path, game_dir_name)
             if not os.path.isfile(game_dir_full_path):
+                print(f"Converting {game_dir_full_path}...")
                 opened_file = open(f"{game_dir_full_path}/{game_dir_name}.json")
                 json_file = json.load(opened_file)
 
@@ -86,7 +88,9 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
 
                     checked_categories = True
 
-                with open(
-                    f"{game_dir_full_path}/{game_dir_name}-coco.json", "w"
-                ) as outfile:
+                coco_file_name = f"{game_dir_full_path}/{game_dir_name}-coco.json"
+                with open(coco_file_name, "w") as outfile:
                     json.dump(coco_dict, outfile, indent=4)
+                print(f"-> Generated {coco_file_name}")
+
+print("DONE")
