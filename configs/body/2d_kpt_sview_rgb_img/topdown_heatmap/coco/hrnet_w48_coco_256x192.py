@@ -76,7 +76,7 @@ model = dict(
         modulate_kernel=11))
 
 data_cfg = dict(
-    image_size=[360, 640],
+    image_size=[192, 256],
     heatmap_size=[48, 64],
     num_output_channels=channel_cfg['num_output_channels'],
     num_joints=channel_cfg['dataset_joints'],
@@ -139,7 +139,7 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = 'data/coco'
+data_root = 'C:/Users/stavro/Desktop\capstone/video_pose/video_pose'
 data = dict(
     samples_per_gpu=32,
     workers_per_gpu=2,
