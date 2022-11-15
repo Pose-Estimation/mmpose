@@ -1,6 +1,6 @@
 _base_ = [
     '../../../../_base_/default_runtime.py',
-    '../../../../_base_/datasets/coco.py'
+    '../../../../_base_/datasets/hockey.py'
 ]
 evaluation = dict(interval=10, metric='mAP', save_best='AP')
 
@@ -85,7 +85,7 @@ data_cfg = dict(
     nms_thr=1.0,
     oks_thr=0.9,
     vis_thr=0.2,
-    use_gt_bbox=False,
+    use_gt_bbox=True,
     det_bbox_thr=0.0,
     bbox_file='C:/Users/stavro/Desktop/capstone/video_pose/video_pose/Slashing/_2017-11-22-ott-wsh-home245/2017-11-22-ott-wsh-home245-bbox-only.json',
 )
