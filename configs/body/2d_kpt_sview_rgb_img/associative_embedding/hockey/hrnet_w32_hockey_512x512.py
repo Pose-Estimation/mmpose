@@ -21,14 +21,14 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=10,
     warmup_ratio=0.001,
-    step=[10, 20])
+    step=[12, 20])
 total_epochs = 25
 
 #TODO appropriate channel config
 channel_cfg = dict(
-    dataset_joints=16,
-    dataset_channel=list(range(16)),
-    inference_channel=list(range(16)))
+    dataset_joints=14,
+    dataset_channel=list(range(14)),
+    inference_channel=list(range(14)))
 
 #TODO add appropriate data config
 data_cfg = dict(
@@ -80,14 +80,14 @@ model = dict(
     keypoint_head=dict(
         type='AESimpleHead',
         in_channels=32,
-        num_joints=16,
+        num_joints=14,
         num_deconv_layers=0,
         tag_per_joint=True,
         with_ae_loss=[True],
         extra=dict(final_conv_kernel=1, ),
         loss_keypoint=dict(
             type='MultiLossFactory',
-            num_joints=16,
+            num_joints=14,
             num_stages=1,
             ae_loss_type='exp',
             with_ae_loss=[True],

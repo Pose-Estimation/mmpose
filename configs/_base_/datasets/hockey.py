@@ -22,14 +22,14 @@ dataset_info = dict(
         dict(
             name='right_shoulder',
             id=2,
-            color=[51, 153, 255],
+            color=[255, 128, 0],
             type='upper',
             swap='left_shoulder'),
         3:
         dict(
             name='right_elbow',
             id=3,
-            color=[0, 255, 0],
+            color=[255, 128, 0],
             type='upper',
             swap='left_elbow'),
         4:
@@ -43,7 +43,7 @@ dataset_info = dict(
         dict(
             name='left_shoulder',
             id=5,
-            color=[51, 153, 255],
+            color=[0, 255, 0],
             type='upper',
             swap='right_shoulder'),
         6:
@@ -57,7 +57,7 @@ dataset_info = dict(
         dict(
             name='left_wrist',
             id=7,
-            color=[255, 128, 0],
+            color=[0, 255, 0],
             type='upper',
             swap='right_wrist'),
         8:
@@ -72,7 +72,7 @@ dataset_info = dict(
         dict(
             name='right_knee',
             id=9,
-            color=[0, 255, 0],
+            color=[255, 128, 0],
             type='lower',
             swap='left_knee'),
         10:
@@ -93,7 +93,7 @@ dataset_info = dict(
         dict(
             name='left_knee',
             id=12,
-            color=[255, 128, 0],
+            color=[0, 255, 0],
             type='lower',
             swap='right_knee'),
         13:
@@ -103,20 +103,6 @@ dataset_info = dict(
             color=[0, 255, 0],
             type='lower',
             swap='right_ankle'),
-        14:
-        dict(
-            name='hockey_grip',
-            id=14,
-            color=[255, 128, 0],
-            type='upper',
-            swap=''),
-        15:
-        dict(
-            name='hockey_hill',
-            id=15,
-            color=[0, 255, 0],
-            type='lower',
-            swap=''),
     },
     skeleton_info={
         0:
@@ -130,9 +116,9 @@ dataset_info = dict(
         4:
         dict(link=('left_hip', 'right_hip'), id=4, color=[51, 153, 255]),
         5:
-        dict(link=('left_shoulder', 'left_hip'), id=5, color=[51, 153, 255]),
+        dict(link=('left_shoulder', 'left_hip'), id=5, color=[0, 255, 0]),
         6:
-        dict(link=('right_shoulder', 'right_hip'), id=6, color=[51, 153, 255]),
+        dict(link=('right_shoulder', 'right_hip'), id=6, color=[255, 128, 0]),
         7:
         dict(
             link=('left_shoulder', 'right_shoulder'),
@@ -153,17 +139,15 @@ dataset_info = dict(
         dict(link=('neck', 'right_shoulder'), id=13, color=[51, 153, 255]),
         14:
         dict(link=('neck', 'head'), id=14, color=[51, 153, 255]),
-        15:
-        dict(link=('hockey_grip', 'hockey_hill'), id=15, color=[51, 153, 255]),
     },
     
     #TODO Tune this
     joint_weights=[
-        1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
+        1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
     ],
     
     #TODO Tune this
     sigmas=[
         0.026, 0.026, 0.0079, 0.072, 0.062, 0.0079, 0.072, 0.062, 0.107, 0.087,
-        0.089, 0.107, 0.087, 0.089, 0.100, 0.100
+        0.089, 0.107, 0.087, 0.089
     ])
