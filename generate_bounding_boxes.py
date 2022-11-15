@@ -26,6 +26,7 @@ if __name__ == "__main__":
                     f = open(f"{game_dir_full_path}/{game_dir_name}-coco.json")
                     data = json.load(f)
                     f.close()
+                    data_bboxonly = []
 
                     #get image width and height, assuming they are the same size for all images in one video
                     imageWidth = data["images"][0]["width"]
@@ -89,11 +90,23 @@ if __name__ == "__main__":
                         
                         # Set the bbox attribute in the json data
                         player["bbox"] = bbox
+
+                        player_bboxonly = {}
+                        player_bboxonly["bbox"] = bbox
+                        player_bboxonly["category_id"] = player["category_id"]
+                        player_bboxonly["image_id"] = player["image_id"]
+                        player_bboxonly["score"] = 1
+                        data_bboxonly.append(player_bboxonly)
                     
                     # Write the json to a file and save it
                     outputFilenameString = f"{game_dir_full_path}/{game_dir_name}-bbox-appended.json"
                     outputFile = open(outputFilenameString, "w")
                     outputJson = json.dump(data, outputFile, indent=4)
+                    outputFile.close()
+
+                    outputFilenameString = f"{game_dir_full_path}/{game_dir_name}-bbox-only.json"
+                    outputFile = open(outputFilenameString, "w")
+                    outputJson = json.dump(data_bboxonly, outputFile, indent=4)
                     outputFile.close()
 
 
