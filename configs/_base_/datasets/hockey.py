@@ -103,22 +103,7 @@ dataset_info = dict(
             color=[0, 255, 0],
             type='lower',
             swap='right_ankle'),
-        14:
-        dict(
-            name='hockey_grip',
-            id=14,
-            color=[255, 128, 0],
-            #Considered upper or lower?
-            type='upper',
-            swap=''),
-        15:
-        dict(
-            name='hockey_hill',
-            id=15,
-            color=[0, 255, 0],
-            ##Same here Considered upper or lower?
-            type='lower',
-            swap=''),
+
     },
     skeleton_info={
         0:
@@ -155,17 +140,15 @@ dataset_info = dict(
         dict(link=('neck', 'right_shoulder'), id=13, color=[51, 153, 255]),
         14:
         dict(link=('neck', 'head'), id=14, color=[51, 153, 255]),
-        15:
-        dict(link=('hockey_grip', 'hockey_hill'), id=15, color=[51, 153, 255]),
     },
     
     #TODO Tune this
     joint_weights=[
-        1., 1., 1., 1., 1., 1., 1., 1.2, 1.2, 1.5, 1.5, 1., 1., 1.2, 1.2, 1.5,
+        1., 1., 1., 1., 1., 1., 1., 1.2, 1.2, 1.5, 1.5, 1., 1., 1.2,
     ],
     
     #TODO Tune this
     sigmas=[
         0.026, 0.025, 0.025, 0.035, 0.035, 0.079, 0.079, 0.072, 0.072, 0.062,
-        0.062, 0.107, 0.107, 0.087, 0.087, 0.089
+        0.062, 0.107, 0.107, 0.087
     ])

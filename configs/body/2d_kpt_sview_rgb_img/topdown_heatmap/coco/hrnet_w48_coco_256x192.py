@@ -18,14 +18,13 @@ lr_config = dict(
     step=[170, 200])
 total_epochs = 210
 channel_cfg = dict(
-    num_output_channels=16,
-    dataset_joints=16,
+    num_output_channels=14,
+    dataset_joints=14,
     dataset_channel=[
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
     ],
     inference_channel=[
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
-    ])
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
 
 # model settings
 model = dict(
@@ -88,8 +87,7 @@ data_cfg = dict(
     vis_thr=0.2,
     use_gt_bbox=False,
     det_bbox_thr=0.0,
-    bbox_file='data/coco/person_detection_results/'
-    'COCO_val2017_detections_AP_H_56_person.json',
+    bbox_file='C:/Users/stavro/Desktop/capstone/video_pose/video_pose/Slashing/_2017-11-22-ott-wsh-home245/2017-11-22-ott-wsh-home245-bbox-only.json',
 )
 
 train_pipeline = [
@@ -139,7 +137,7 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = 'C:/Users/stavro/Desktop\capstone/video_pose/video_pose'
+data_root = 'C:/Users/stavro/Desktop/capstone/video_pose/video_pose'
 data = dict(
     samples_per_gpu=32,
     workers_per_gpu=2,
@@ -154,15 +152,15 @@ data = dict(
         dataset_info={{_base_.dataset_info}}),
     val=dict(
         type='TopDownCocoDataset',
-        ann_file=f'{data_root}/annotations/person_keypoints_val2017.json',
-        img_prefix=f'{data_root}/val2017/',
+        ann_file=f'{data_root}/Slashing/_2017-11-22-ott-wsh-home245/_2017-11-22-ott-wsh-home245-bbox-appended.json',
+        img_prefix=f'{data_root}/Slashing/_2017-11-22-ott-wsh-home245/',
         data_cfg=data_cfg,
         pipeline=val_pipeline,
         dataset_info={{_base_.dataset_info}}),
     test=dict(
         type='TopDownCocoDataset',
-        ann_file=f'{data_root}/annotations/person_keypoints_val2017.json',
-        img_prefix=f'{data_root}/val2017/',
+        ann_file=f'{data_root}/Slashing/_2017-11-22-ott-wsh-home245/_2017-11-22-ott-wsh-home245-bbox-appended.json',
+        img_prefix=f'{data_root}/Slashing/_2017-11-22-ott-wsh-home245/',
         data_cfg=data_cfg,
         pipeline=test_pipeline,
         dataset_info={{_base_.dataset_info}}),
