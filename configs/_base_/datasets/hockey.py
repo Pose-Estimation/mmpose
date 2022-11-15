@@ -108,7 +108,6 @@ dataset_info = dict(
             name='hockey_grip',
             id=14,
             color=[255, 128, 0],
-            #Considered upper or lower?
             type='upper',
             swap=''),
         15:
@@ -116,7 +115,6 @@ dataset_info = dict(
             name='hockey_hill',
             id=15,
             color=[0, 255, 0],
-            ##Same here Considered upper or lower?
             type='lower',
             swap=''),
     },
@@ -161,11 +159,11 @@ dataset_info = dict(
     
     #TODO Tune this
     joint_weights=[
-        1., 1., 1., 1., 1., 1., 1., 1.2, 1.2, 1.5, 1.5, 1., 1., 1.2, 1.2, 1.5,
+        1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
     ],
     
     #TODO Tune this
     sigmas=[
-        0.026, 0.025, 0.025, 0.035, 0.035, 0.079, 0.079, 0.072, 0.072, 0.062,
-        0.062, 0.107, 0.107, 0.087, 0.087, 0.089
+        0.026, 0.026, 0.0079, 0.072, 0.062, 0.0079, 0.072, 0.062, 0.107, 0.087,
+        0.089, 0.107, 0.087, 0.089, 0.100, 0.100
     ])

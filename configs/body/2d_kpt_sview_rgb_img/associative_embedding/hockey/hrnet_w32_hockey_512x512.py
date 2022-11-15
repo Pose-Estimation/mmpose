@@ -4,38 +4,38 @@ _base_ = [
     '../../../../_base_/datasets/hockey.py'
 ]
 
-checkpoint_config = dict(interval=50)
-#TODO Check interval
+checkpoint_config = dict(interval=10)
+
+load_from = "https://download.openmmlab.com/mmpose/bottom_up/hrnet_w32_coco_512x512-bcb8c247_20200816.pth"
+
 evaluation = dict(interval=50, metric='mAP', save_best='AP')
 
 optimizer = dict(
     type='Adam',
-    lr=0.0015,
+    lr=0.0005,
 )
 optimizer_config = dict(grad_clip=None)
 # learning policy
 lr_config = dict(
     policy='step',
     warmup='linear',
-    warmup_iters=500,
+    warmup_iters=10,
     warmup_ratio=0.001,
-    step=[200, 260])
-total_epochs = 300
+    step=[10, 20])
+total_epochs = 25
 
 #TODO appropriate channel config
 channel_cfg = dict(
     dataset_joints=16,
-    dataset_channel=[
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-    ],
-    inference_channel=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
+    dataset_channel=list(range(16)),
+    inference_channel=list(range(16)))
 
 #TODO add appropriate data config
 data_cfg = dict(
-    image_size=[640, 360],
-    base_size=1,
-    base_sigma=1,
-    heatmap_size=[160, 90],
+    image_size=512,
+    base_size=256,
+    base_sigma=2,
+    heatmap_size=[128],
     num_joints=channel_cfg['dataset_joints'],
     dataset_channel=channel_cfg['dataset_channel'],
     inference_channel=channel_cfg['inference_channel'],
@@ -47,7 +47,7 @@ data_cfg = dict(
 model = dict(
     type='AssociativeEmbedding',
     pretrained='https://download.openmmlab.com/mmpose/'
-    'pretrain_models/hrnet_w32-36af842e.pth',
+    '/bottom_up/hrnet_w32_coco_512x512-bcb8c247_20200816.pth',
     backbone=dict(
         type='HRNet',
         in_channels=3,
@@ -100,7 +100,7 @@ model = dict(
     #TODO Choose best params
     test_cfg=dict(
         num_joints=channel_cfg['dataset_joints'],
-        max_num_people=1,
+        max_num_people=30,
         scale_factor=[1],
         with_heatmaps=[True],
         with_ae=[True],
@@ -166,23 +166,23 @@ val_pipeline = [
 test_pipeline = val_pipeline
 
 #Set data path here
-data_root = ''
+data_root = 'C:/Users/Admin/Desktop/Datasets/video_pose'
 data = dict(
     workers_per_gpu=2,
-    train_dataloader=dict(samples_per_gpu=24),
+    train_dataloader=dict(samples_per_gpu=1),
     val_dataloader=dict(samples_per_gpu=1),
     test_dataloader=dict(samples_per_gpu=1),
     train=dict(
         type='BottomUpCocoDataset',
-        ann_file=f'{data_root}/annotations/person_keypoints_train2017.json',
-        img_prefix=f'{data_root}/train2017/',
+        ann_file=f'{data_root}/No_penalty/_2018-02-11-pit-stl-national135/_2018-02-11-pit-stl-national135-coco.json',
+        img_prefix=f'{data_root}/No_penalty/_2018-02-11-pit-stl-national135/',
         data_cfg=data_cfg,
         pipeline=train_pipeline,
         dataset_info={{_base_.dataset_info}}),
     val=dict(
         type='BottomUpCocoDataset',
-        ann_file=f'{data_root}/annotations/person_keypoints_val2017.json',
-        img_prefix=f'{data_root}/val2017/',
+        ann_file=f'{data_root}/Tripping/_2018-02-13-ana-det-home137/_2018-02-13-ana-det-home137-coco.json',
+        img_prefix=f'{data_root}/Tripping/_2018-02-13-ana-det-home137',
         data_cfg=data_cfg,
         pipeline=val_pipeline,
         dataset_info={{_base_.dataset_info}}),
