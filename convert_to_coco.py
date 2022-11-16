@@ -48,8 +48,8 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
                             "left_hip",
                             "left_knee",
                             "left_ankle",
-                            "hockey_grip",
-                            "hockey_hill",
+                            # "hockey_grip",
+                            # "hockey_hill",
                         ],
                         "skeleton": [
                             [13, 12],  # left ankle - left knee
@@ -67,7 +67,7 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
                             [1, 5],  # neck - left shoulder
                             [1, 2],  # neck - right shoulder
                             [1, 0],  # neck - head
-                            [14, 15],  # hockey grip - hockey hill
+                            # [14, 15],  # hockey grip - hockey hill
                         ],
                     }
                 ]
