@@ -90,23 +90,14 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
                         }
                         coco_dict["images"].append(image_dict)
 
-                # annotations and categories
+                # annotations
                 image_id = 0
-                # checked_categories = False
                 for frame in json_file:
                     for key, value in frame.items():
 
                         if key == "frameNum":
                             image_id = value
                         else:
-                            # if not checked_categories:
-                            #     coco_dict["categories"].append(
-                            #         {
-                            #             "id": int(key[1:]),
-                            #             "name": "person",
-                            #         }
-                            #     )
-
                             annotation = {}
 
                             annotation["keypoints"] = []
