@@ -103,7 +103,7 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
                             annotation["keypoints"] = []
                             keypoints = np.split(np.array(value), len(value) // 3)[:14]
                             num_keypoints = 0
-                            for x, y, _ in keypoints[:-2]:
+                            for x, y, _ in keypoints:
                                 if x == y == 0:
                                     v = 0
                                 else:

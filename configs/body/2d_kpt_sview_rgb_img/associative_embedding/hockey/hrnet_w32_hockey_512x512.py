@@ -1,6 +1,5 @@
 _base_ = [
     '../../../../_base_/default_runtime.py',
-    #TODO Change to custom dataset
     '../../../../_base_/datasets/hockey.py'
 ]
 
@@ -24,13 +23,13 @@ lr_config = dict(
     step=[12, 20])
 total_epochs = 25
 
-#TODO appropriate channel config
+
 channel_cfg = dict(
     dataset_joints=14,
     dataset_channel=list(range(14)),
     inference_channel=list(range(14)))
 
-#TODO add appropriate data config
+
 data_cfg = dict(
     image_size=512,
     base_size=256,
@@ -188,7 +187,7 @@ data = dict(
         dataset_info={{_base_.dataset_info}}),
     test=dict(
         type='BottomUpCocoDataset',
-        ann_file=f'{data_root}/No_penalty/_2017-11-05-det-edm-national15/_2017-11-05-det-edm-national15-coco.json',
+        ann_file=f'{data_root}/No_penalty/_2017-11-05-det-edm-national15/_2017-11-05-det-edm-national15-bbox-appended.json',
         img_prefix=f'{data_root}/No_penalty/_2017-11-05-det-edm-national15/',
         data_cfg=data_cfg,
         pipeline=test_pipeline,
