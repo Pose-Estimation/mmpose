@@ -1,26 +1,18 @@
-#TODO fix colors
+# TODO fix colors
 dataset_info = dict(
-    dataset_name='hockey',
+    dataset_name="hockey",
     paper_info=dict(
-        author='None',
-        title='Hockey Dataset',
-        container='None',
-        year='2022',
-        homepage='none',
+        author="None",
+        title="Hockey Dataset",
+        container="None",
+        year="2022",
+        homepage="none",
     ),
     keypoint_info={
-        0:
-        dict(name='head', id=0, color=[51, 153, 255], type='upper', swap=''),
-        1:
-        dict(
-            name='neck',
-            id=1,
-            color=[51, 153, 255],
-            type='upper',
-            swap=''),
-        2:
-        dict(
-            name='right_shoulder',
+        0: dict(name="head", id=0, color=[51, 153, 255], type="upper", swap=""),
+        1: dict(name="neck", id=1, color=[51, 153, 255], type="upper", swap=""),
+        2: dict(
+            name="right_shoulder",
             id=2,
             color=[255, 128, 0],
             type='upper',
@@ -37,11 +29,11 @@ dataset_info = dict(
             name='right_wrist',
             id=4,
             color=[255, 128, 0],
-            type='upper',
-            swap='left_wrist'),
-        5:
-        dict(
-            name='left_shoulder',
+            type="upper",
+            swap="left_wrist",
+        ),
+        5: dict(
+            name="left_shoulder",
             id=5,
             color=[0, 255, 0],
             type='upper',
@@ -80,18 +72,14 @@ dataset_info = dict(
             name='right_ankle',
             id=10,
             color=[255, 128, 0],
-            type='lower',
-            swap='left_ankle'),
-        11:
-        dict(
-            name='left_hip',
-            id=11,
-            color=[0, 255, 0],
-            type='lower',
-            swap='right_hip'),
-        12:
-        dict(
-            name='left_knee',
+            type="lower",
+            swap="left_ankle",
+        ),
+        11: dict(
+            name="left_hip", id=11, color=[0, 255, 0], type="lower", swap="right_hip"
+        ),
+        12: dict(
+            name="left_knee",
             id=12,
             color=[0, 255, 0],
             type='lower',
@@ -140,13 +128,11 @@ dataset_info = dict(
         14:
         dict(link=('neck', 'head'), id=14, color=[51, 153, 255]),
     },
-    
-    #TODO Tune this
+    # TODO Tune this
     joint_weights=[
         1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
     ],
-    
-    #TODO Tune this
+    # TODO Tune this
     sigmas=[
         0.026, 0.026, 0.0079, 0.072, 0.062, 0.0079, 0.072, 0.062, 0.107, 0.087,
         0.089, 0.107, 0.087, 0.089
