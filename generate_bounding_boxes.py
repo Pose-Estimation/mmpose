@@ -40,10 +40,13 @@ if __name__ == "__main__":
                         miny = 99999
                         maxy = -99999
 
+                        outofrangekeypoints = []
+
                         # Currently ignoring the stick; should it be included in the box?
                         for i in range(14) :
                             #if out of frame, skip this keypoint
                             if playerKeypoints[i * 3] == 0 and playerKeypoints[i * 3 + 1] == 0 :
+                                outofrangekeypoints.append(i)
                                 continue
 
                             #otherwise, check for a new minx, miny, maxx, maxy
@@ -76,11 +79,40 @@ if __name__ == "__main__":
                             if (not ((nosex == 0 and nosey == 0) or (neckx == 0 and necky == 0))):
                                 halfFaceDistance = math.sqrt((nosex - neckx) * (nosex - neckx) + (nosey - necky) * (nosey - necky))
 
-                            # Increment the size of the bounding box, making sure to stay in frame
-                            minx = np.maximum(0.0, minx - halfFaceDistance)
-                            maxx = np.minimum(float(imageWidth), maxx + halfFaceDistance)
-                            miny = np.maximum(0.0, miny - halfFaceDistance)
-                            maxy = np.minimum(float(imageHeight), maxy + halfFaceDistance)
+                                # Increment the size of the bounding box, making sure to stay in frame
+                                minx = np.maximum(0.0, minx - halfFaceDistance)
+                                maxx = np.minimum(float(imageWidth), maxx + halfFaceDistance)
+                                miny = np.maximum(0.0, miny - halfFaceDistance)
+                                maxy = np.minimum(float(imageHeight), maxy + halfFaceDistance)
+                            else:
+                                #if nose or neck is out of frame, just increase by 10%
+                                width = maxx - minx
+                                height = maxy - miny
+                                minx = np.maximum(0.0, minx -width * 0.05)
+                                maxx = np.minimum(float(imageWidth), maxx + width * 0.05)
+                                miny = np.maximum(0.0, miny - height * 0.05)
+                                maxy = np.minimum(float(imageHeight), maxy + height * 0.05)
+
+                            #If there are any keypoints out of frame, check whether the player is close to the border and extend. 
+                            # 30 is chosen arbitrarily; better system for close would be ideal
+                            if len(outofrangekeypoints) > 0:
+                                upperPoints = [0,1,2,5]
+                                leftPoints = [5,6,7,11,12,13]
+                                rightPoints = [2,3,4,8,9,10]
+                                lowerPoints = [9,10,12,13]
+                                #if nose, neck, or shoulders are out of frame, check if near top frame
+                                if len(list(set(upperPoints) & set(outofrangekeypoints))) > 0 and miny < 30:
+                                    miny = 0
+                                #if left side body parts are oof, check left side
+                                if len(list(set(leftPoints) & set(outofrangekeypoints))) > 0 and minx < 30:
+                                    minx = 0
+                                #if right side body parts are oof, check right side
+                                if len(list(set(rightPoints) & set(outofrangekeypoints))) > 0 and imageWidth - maxx < 30:
+                                    maxx = imageWidth
+                                #if knees or ankles are oof, check bottom side
+                                if len(list(set(rightPoints) & set(outofrangekeypoints))) > 0 and imageHeight - maxy < 30:
+                                    maxy = imageWidth
+
 
                             width = maxx - minx
                             height = maxy - miny
