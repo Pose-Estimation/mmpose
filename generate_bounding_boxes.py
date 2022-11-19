@@ -122,7 +122,7 @@ if __name__ == "__main__":
                         
                         # Set the bbox attribute in the json data
                         player["bbox"] = bbox
-
+                        player["area"] = width * height
                         player_bboxonly = {}
                         player_bboxonly["bbox"] = bbox
                         player_bboxonly["category_id"] = player["category_id"]
