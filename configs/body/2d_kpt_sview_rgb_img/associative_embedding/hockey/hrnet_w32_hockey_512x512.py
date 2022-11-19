@@ -3,15 +3,15 @@ _base_ = [
     '../../../../_base_/datasets/hockey.py'
 ]
 
-checkpoint_config = dict(interval=10)
+checkpoint_config = dict(interval=25)
 
 load_from = "https://download.openmmlab.com/mmpose/bottom_up/hrnet_w32_coco_512x512-bcb8c247_20200816.pth"
 
-evaluation = dict(interval=50, metric='mAP', save_best='AP')
+evaluation = dict(interval=200, metric='mAP', save_best='AP')
 
 optimizer = dict(
     type='Adam',
-    lr=0.0005,
+    lr=0.0015,
 )
 optimizer_config = dict(grad_clip=None)
 # learning policy
@@ -20,8 +20,8 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=10,
     warmup_ratio=0.001,
-    step=[12, 20])
-total_epochs = 25
+    step=[50, 75])
+total_epochs = 100
 
 
 channel_cfg = dict(
@@ -168,27 +168,27 @@ test_pipeline = val_pipeline
 data_root = 'C:/Users/Admin/Desktop/Datasets/video_pose'
 data = dict(
     workers_per_gpu=2,
-    train_dataloader=dict(samples_per_gpu=1),
+    train_dataloader=dict(samples_per_gpu=4),
     val_dataloader=dict(samples_per_gpu=1),
     test_dataloader=dict(samples_per_gpu=1),
     train=dict(
         type='BottomUpCocoDataset',
-        ann_file=f'{data_root}/No_penalty/_2018-02-11-pit-stl-national135/_2018-02-11-pit-stl-national135-coco.json',
-        img_prefix=f'{data_root}/No_penalty/_2018-02-11-pit-stl-national135/',
+        ann_file=f'{data_root}/train/train-coco.json',
+        img_prefix=f'{data_root}/train/',
         data_cfg=data_cfg,
         pipeline=train_pipeline,
         dataset_info={{_base_.dataset_info}}),
     val=dict(
         type='BottomUpCocoDataset',
-        ann_file=f'{data_root}/Tripping/_2018-02-13-ana-det-home137/_2018-02-13-ana-det-home137-coco.json',
-        img_prefix=f'{data_root}/Tripping/_2018-02-13-ana-det-home137',
+        ann_file=f'{data_root}/validate/validate-coco.json',
+        img_prefix=f'{data_root}/validate/',
         data_cfg=data_cfg,
         pipeline=val_pipeline,
         dataset_info={{_base_.dataset_info}}),
     test=dict(
         type='BottomUpCocoDataset',
-        ann_file=f'{data_root}/No_penalty/_2017-11-05-det-edm-national15/_2017-11-05-det-edm-national15-bbox-appended.json',
-        img_prefix=f'{data_root}/No_penalty/_2017-11-05-det-edm-national15/',
+        ann_file=f'{data_root}/test/test-coco.json',
+        img_prefix=f'{data_root}/test/',
         data_cfg=data_cfg,
         pipeline=test_pipeline,
         dataset_info={{_base_.dataset_info}}),
