@@ -2,7 +2,9 @@ _base_ = [
     '../../../../_base_/default_runtime.py',
     '../../../../_base_/datasets/hockey.py'
 ]
-evaluation = dict(interval=10, metric='mAP', save_best='AP')
+evaluation = dict(interval=20, metric='mAP', save_best='AP')
+checkpoint_config = dict(interval=25)
+
 
 optimizer = dict(
     type='Adam',
@@ -15,8 +17,8 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=0.001,
-    step=[170, 200])
-total_epochs = 210
+    step=[50, 80])
+total_epochs = 100
 channel_cfg = dict(
     num_output_channels=14,
     dataset_joints=14,
