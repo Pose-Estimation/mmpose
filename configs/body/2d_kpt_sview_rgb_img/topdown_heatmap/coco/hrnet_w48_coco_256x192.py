@@ -74,7 +74,7 @@ model = dict(
         shift_heatmap=True,
         modulate_kernel=11))
 
-data_cfg = dict(
+data_cfg_train = dict(
     image_size=[192, 256],
     heatmap_size=[48, 64],
     num_output_channels=channel_cfg['num_output_channels'],
@@ -87,8 +87,42 @@ data_cfg = dict(
     vis_thr=0.2,
     use_gt_bbox=True,
     det_bbox_thr=0.0,
-    bbox_file='C:/Users/stavro/Desktop/capstone/video_pose/video_pose/Slashing/_2017-11-22-ott-wsh-home245/2017-11-22-ott-wsh-home245-bbox-only.json',
+    bbox_file='C:/Users/stavro/Desktop/capstone/video_pose/video_pose/train_test_validate/train/train-bbox-only.json',
 )
+
+data_cfg_test = dict(
+    image_size=[192, 256],
+    heatmap_size=[48, 64],
+    num_output_channels=channel_cfg['num_output_channels'],
+    num_joints=channel_cfg['dataset_joints'],
+    dataset_channel=channel_cfg['dataset_channel'],
+    inference_channel=channel_cfg['inference_channel'],
+    soft_nms=False,
+    nms_thr=1.0,
+    oks_thr=0.9,
+    vis_thr=0.2,
+    use_gt_bbox=True,
+    det_bbox_thr=0.0,
+    bbox_file='C:/Users/stavro/Desktop/capstone/video_pose/video_pose/train_test_validate/test/test-bbox-only.json',
+)
+
+data_cfg_validate = dict(
+    image_size=[192, 256],
+    heatmap_size=[48, 64],
+    num_output_channels=channel_cfg['num_output_channels'],
+    num_joints=channel_cfg['dataset_joints'],
+    dataset_channel=channel_cfg['dataset_channel'],
+    inference_channel=channel_cfg['inference_channel'],
+    soft_nms=False,
+    nms_thr=1.0,
+    oks_thr=0.9,
+    vis_thr=0.2,
+    use_gt_bbox=True,
+    det_bbox_thr=0.0,
+    bbox_file='C:/Users/stavro/Desktop/capstone/video_pose/video_pose/train_test_validate/validate/validate-bbox-only.json',
+)
+
+
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),
@@ -137,7 +171,7 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = 'C:/Users/stavro/Desktop/capstone/video_pose/video_pose'
+data_root = 'C:/Users/stavro/Desktop/capstone/video_pose/video_pose/train_test_validate'
 data = dict(
     samples_per_gpu=32,
     workers_per_gpu=2,
@@ -145,23 +179,23 @@ data = dict(
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(
         type='TopDownCocoDataset',
-        ann_file=f'{data_root}/annotations/person_keypoints_train2017.json',
-        img_prefix=f'{data_root}/train2017/',
-        data_cfg=data_cfg,
+        ann_file=f'{data_root}/train/train-bbox-appended.json',
+        img_prefix=f'{data_root}/train/',
+        data_cfg=data_cfg_train,
         pipeline=train_pipeline,
         dataset_info={{_base_.dataset_info}}),
     val=dict(
         type='TopDownCocoDataset',
-        ann_file=f'{data_root}/Slashing/_2017-11-22-ott-wsh-home245/_2017-11-22-ott-wsh-home245-bbox-appended.json',
-        img_prefix=f'{data_root}/Slashing/_2017-11-22-ott-wsh-home245/',
-        data_cfg=data_cfg,
+        ann_file=f'{data_root}/validate/validate-bbox-appended.json',
+        img_prefix=f'{data_root}/validate/',
+        data_cfg=data_cfg_validate,
         pipeline=val_pipeline,
         dataset_info={{_base_.dataset_info}}),
     test=dict(
         type='TopDownCocoDataset',
-        ann_file=f'{data_root}/Slashing/_2017-11-22-ott-wsh-home245/_2017-11-22-ott-wsh-home245-bbox-appended.json',
-        img_prefix=f'{data_root}/Slashing/_2017-11-22-ott-wsh-home245/',
-        data_cfg=data_cfg,
+        ann_file=f'{data_root}/test/test-bbox-appended.json',
+        img_prefix=f'{data_root}/test/',
+        data_cfg=data_cfg_test,
         pipeline=test_pipeline,
         dataset_info={{_base_.dataset_info}}),
 )

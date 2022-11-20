@@ -120,7 +120,7 @@ def main():
 
     image_id = 0
 
-    filtered_videos = pd.read_csv("./filtered_videos.csv")
+    filtered_videos = pd.read_csv("C:/Users/stavro/Desktop/capstone/filtered_videos.csv")
 
     for data_dir in OS_DIR:
         if not os.path.isdir(f'{PATH_TO_VIDEOPOSE}/{data_dir}'):
