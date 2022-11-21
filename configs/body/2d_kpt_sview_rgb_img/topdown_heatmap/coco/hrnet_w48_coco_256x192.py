@@ -3,7 +3,7 @@ _base_ = [
     '../../../../_base_/datasets/hockey.py'
 ]
 evaluation = dict(interval=20, metric='mAP', save_best='AP')
-checkpoint_config = dict(interval=25)
+checkpoint_config = dict(interval=5)
 
 
 optimizer = dict(
