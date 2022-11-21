@@ -175,10 +175,10 @@ test_pipeline = val_pipeline
 
 data_root = 'C:/Users/stavro/Desktop/capstone/video_pose/video_pose/train_test_validate'
 data = dict(
-    samples_per_gpu=32,
+    samples_per_gpu=2,
     workers_per_gpu=2,
-    val_dataloader=dict(samples_per_gpu=32),
-    test_dataloader=dict(samples_per_gpu=32),
+    val_dataloader=dict(samples_per_gpu=1),
+    test_dataloader=dict(samples_per_gpu=1),
     train=dict(
         type='TopDownCocoDataset',
         ann_file=f'{data_root}/train/train-bbox-appended.json',
