@@ -44,7 +44,7 @@ VIDEO_POSE_TYPES = {
         "total": 20
     }
 }
-OS_DIR = ["train", "validate", "test"]
+OS_DIR = ["full_data", "train", "validate", "test"]
 
 
 def create_coco_dict():
@@ -124,7 +124,10 @@ def main():
 
     for data_dir in OS_DIR:
         if not os.path.isdir(f'{PATH_TO_VIDEOPOSE}/{data_dir}'):
-            os.mkdir(f'{PATH_TO_VIDEOPOSE}/{data_dir}')
+            if data_dir == "full_data":
+                os.mkdir(f'{PATH_TO_VIDEOPOSE}/{data_dir}')
+            else:
+                os.mkdir(f'{PATH_TO_VIDEOPOSE}/full_data/{data_dir}')
 
     for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
         video_dir_full_path = os.path.join(PATH_TO_VIDEOPOSE, video_dir_name)
@@ -140,7 +143,7 @@ def main():
             start_id = image_id
             indices = np.arange(VIDEO_POSE_TYPES[video_dir_name]["total"])
             np.random.shuffle(indices)
-
+            
             train_index = VIDEO_POSE_TYPES[video_dir_name]["train"]
             train_list = indices[:train_index]
             val_list = indices[train_index:train_index +
@@ -177,7 +180,7 @@ def main():
                             width = img.width
                             height = img.height
                             img.save(
-                                f"{PATH_TO_VIDEOPOSE}/{json_type}/{temp_id}.png"
+                                f"{PATH_TO_VIDEOPOSE}/full_data/{json_type}/{temp_id}.png"
                             )
 
                             image_dict = {
@@ -232,7 +235,7 @@ def main():
             )
 
     for key, value in splits.items():
-        coco_file_name = f"{PATH_TO_VIDEOPOSE}/{key}/{key}-coco.json"
+        coco_file_name = f"{PATH_TO_VIDEOPOSE}/full_data/{key}/{key}-coco.json"
         with open(coco_file_name, "w") as outfile:
             json.dump(value, outfile, indent=4)
             outfile.close()

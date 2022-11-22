@@ -7,7 +7,7 @@ checkpoint_config = dict(interval=25)
 
 load_from = "https://download.openmmlab.com/mmpose/bottom_up/hrnet_w32_coco_512x512-bcb8c247_20200816.pth"
 
-evaluation = dict(interval=200, metric='mAP', save_best='AP')
+evaluation = dict(interval=30, metric='mAP', save_best='AP')
 
 optimizer = dict(
     type='Adam',
@@ -165,7 +165,7 @@ val_pipeline = [
 test_pipeline = val_pipeline
 
 #Set data path here
-data_root = 'C:/Users/Admin/Desktop/Datasets/video_pose'
+data_root = 'C:/Users/Admin/Desktop/Datasets/video_pose/full_data'
 data = dict(
     workers_per_gpu=2,
     train_dataloader=dict(samples_per_gpu=4),
@@ -173,21 +173,21 @@ data = dict(
     test_dataloader=dict(samples_per_gpu=1),
     train=dict(
         type='BottomUpCocoDataset',
-        ann_file=f'{data_root}/train/train-coco.json',
+        ann_file=f'{data_root}/train/train-bbox-appended.json',
         img_prefix=f'{data_root}/train/',
         data_cfg=data_cfg,
         pipeline=train_pipeline,
         dataset_info={{_base_.dataset_info}}),
     val=dict(
         type='BottomUpCocoDataset',
-        ann_file=f'{data_root}/validate/validate-coco.json',
+        ann_file=f'{data_root}/validate/validate-bbox-appended.json',
         img_prefix=f'{data_root}/validate/',
         data_cfg=data_cfg,
         pipeline=val_pipeline,
         dataset_info={{_base_.dataset_info}}),
     test=dict(
         type='BottomUpCocoDataset',
-        ann_file=f'{data_root}/test/test-coco.json',
+        ann_file=f'{data_root}/test/test-bbox-appended.json',
         img_prefix=f'{data_root}/test/',
         data_cfg=data_cfg,
         pipeline=test_pipeline,
