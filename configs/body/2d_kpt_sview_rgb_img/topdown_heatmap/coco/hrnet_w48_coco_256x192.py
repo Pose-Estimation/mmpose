@@ -8,7 +8,7 @@ checkpoint_config = dict(interval=5)
 
 optimizer = dict(
     type='Adam',
-    lr=5e-4,
+    lr=5e-5,
 )
 optimizer_config = dict(grad_clip=None)
 # learning policy
@@ -18,7 +18,7 @@ lr_config = dict(
     warmup_iters=500,
     warmup_ratio=0.001,
     step=[50, 80])
-total_epochs = 100
+total_epochs = 150
 channel_cfg = dict(
     num_output_channels=14,
     dataset_joints=14,
