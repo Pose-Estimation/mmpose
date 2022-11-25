@@ -96,7 +96,6 @@ model = dict(
             heatmaps_loss_factor=[1.0])),
     train_cfg=dict(),
 
-    #TODO Choose best params
     test_cfg=dict(
         num_joints=channel_cfg['dataset_joints'],
         max_num_people=30,
