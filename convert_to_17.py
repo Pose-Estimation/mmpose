@@ -79,6 +79,7 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
 
                     nosex = playerKeypoints[0]
                     nosey = playerKeypoints[1]
+                    noseCertainty = playerKeypoints[2]
                     neckx = playerKeypoints[3]
                     necky = playerKeypoints[4]
 
@@ -89,33 +90,22 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
                         deltaY = nosey - necky
 
                         eye1X = nosex + 1/4*deltaY
-                        if (nosex == 482.758):
-                            print(f'deltaX is {deltaX}, deltaY is {deltaY}, noseX is {nosex} so eye1X is {eye1X}')
                         eye1Y = nosey + 1/4*deltaX
                         eye2X = nosex - 1/4*deltaY
-                        if (nosex == 482.758):
-                            print(f'deltaX is {deltaX}, deltaY is {deltaY}, noseX is {nosex} so eye2X is {eye2X}')
                         eye2Y = nosey - 1/4*deltaX
                         ear1X = nosex + 1/2*deltaY
-                        if (nosex == 482.758):
-                            print(f'deltaX is {deltaX}, deltaY is {deltaY}, noseX is {nosex} so ear1X is {ear1X}')
                         ear1Y = nosey + 1/2*deltaX
                         ear2X = nosex - 1/2*deltaY
-                        if (nosex == 482.758):
-                            print(f'deltaX is {deltaX}, deltaY is {deltaY}, noseX is {nosex} so ear2X is {ear2X}')
                         ear2Y = nosey - 1/2*deltaX  
 
-                        eye1 = [eye1X, eye1Y, 1]
-                        eye2 = [eye2X, eye2Y, 1]
-                        ear1 = [ear1X, ear1Y, 1]
-                        ear2 = [ear2X, ear2Y, 1]
+                        eye1 = [eye1X, eye1Y, noseCertainty]
+                        eye2 = [eye2X, eye2Y, noseCertainty]
+                        ear1 = [ear1X, ear1Y, noseCertainty]
+                        ear2 = [ear2X, ear2Y, noseCertainty]
 
                         #shoulderDeltaX = rightShoulderX - leftShoulderX. If it's >0, left shoulder has lower x value,
                         #so left eye/ear will have lower x value
                         #Add new keypoints to playerKeypoints in the order: left_eye, right_eye, left_ear, right_ear
-                        shoulderDeltaX = playerKeypoints[6] - playerKeypoints[15]
-                        if (nosex == 482.758):
-                            print(f'deltaX is {deltaX}, deltaY is {deltaY}, noseX is {nosex} so ear2X is {ear2X}')
                         if(playerKeypoints[15] < playerKeypoints[6]):
                             if (eye1X < eye2X):
                                 playerKeypoints.extend(eye1)
@@ -138,11 +128,9 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
                                 playerKeypoints.extend(eye1)
                                 playerKeypoints.extend(ear2)
                                 playerKeypoints.extend(ear1)
-                        #if ("2017-11-05-col-nyi-home12" in game_dir_name):
-                        #    print(playerKeypoints)
                     else:
                         #If nose or neck is out of frame, just set all face keypoints to 0s
-                        playerKeypoints.extend([0,0,1,0,0,1,0,0,1,0,0,1])
+                        playerKeypoints.extend([0,0,0,0,0,0,0,0,0,0,0,0])
 
                     newPlayerKeypoints = []
                     for i in range(17):
@@ -150,7 +138,7 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
                         existingIndex = existing_body_parts.get(cocoBodyPart)
                         newPlayerKeypoints.append(playerKeypoints[existingIndex * 3])
                         newPlayerKeypoints.append(playerKeypoints[existingIndex * 3 + 1])
-                        newPlayerKeypoints.append(1)
+                        newPlayerKeypoints.append(playerKeypoints[existingIndex * 3 + 2])
 
                     player["keypoints"] = newPlayerKeypoints
 
