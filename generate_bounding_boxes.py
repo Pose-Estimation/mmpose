@@ -81,18 +81,18 @@ if __name__ == "__main__":
                                 halfFaceDistance = math.sqrt((nosex - neckx) * (nosex - neckx) + (nosey - necky) * (nosey - necky))
 
                                 # Increment the size of the bounding box, making sure to stay in frame
-                                minx = np.maximum(0.0, minx - halfFaceDistance)
-                                maxx = np.minimum(float(imageWidth), maxx + halfFaceDistance)
-                                miny = np.maximum(0.0, miny - halfFaceDistance)
-                                maxy = np.minimum(float(imageHeight), maxy + halfFaceDistance)
+                                minx = np.maximum(0.0, minx - 2*halfFaceDistance)
+                                maxx = np.minimum(float(imageWidth), maxx + 2*halfFaceDistance)
+                                miny = np.maximum(0.0, miny - 2*halfFaceDistance)
+                                maxy = np.minimum(float(imageHeight), maxy + 2*halfFaceDistance)
                             else:
-                                #if nose or neck is out of frame, just increase by 10%
+                                #if nose or neck is out of frame, just increase by 20%
                                 width = maxx - minx
                                 height = maxy - miny
-                                minx = np.maximum(0.0, minx -width * 0.05)
-                                maxx = np.minimum(float(imageWidth), maxx + width * 0.05)
-                                miny = np.maximum(0.0, miny - height * 0.05)
-                                maxy = np.minimum(float(imageHeight), maxy + height * 0.05)
+                                minx = np.maximum(0.0, minx -width * 0.1)
+                                maxx = np.minimum(float(imageWidth), maxx + width * 0.1)
+                                miny = np.maximum(0.0, miny - height * 0.1)
+                                maxy = np.minimum(float(imageHeight), maxy + height * 0.1)
 
                             #If there are any keypoints out of frame, check whether the player is close to the border and extend. 
                             # 30 is chosen arbitrarily; better system for close would be ideal
