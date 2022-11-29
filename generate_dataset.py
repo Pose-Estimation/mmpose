@@ -113,7 +113,7 @@ def main():
 
 
     # Only use videos with no fans included
-    filtered_videos = pd.read_csv("./filtered_videos.csv")
+    filtered_videos = pd.read_csv("C:/Users/stavro/Desktop/capstone/filtered_videos.csv")
 
     # Create new directories if they do not already exist
     for data_dir in OS_DIR:
