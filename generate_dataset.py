@@ -143,7 +143,7 @@ def main():
             indices = np.arange(game_count)
             np.random.seed(0)
             np.random.shuffle(indices)
-            train_index = math.floor(0.75 * game_count)
+            train_index = math.floor(0.70 * game_count)
             train_list = indices[:train_index]
             val_list = indices[train_index:math.floor(0.85 * game_count)]
 
@@ -178,6 +178,7 @@ def main():
 
                             if is_slowed and not (
                                 (temp_id - start_id) % 4 == 0):
+                                temp_id += 1
                                 continue
 
                             # need to pip install pillow
@@ -205,6 +206,7 @@ def main():
 
                         # Take every fourth image if video is slowed down
                         if is_slowed and not ((image_id - start_id) % 4 == 0):
+                            image_id += 1
                             continue
 
                         for key, value in frame.items():
