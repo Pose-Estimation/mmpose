@@ -5,7 +5,7 @@ _base_ = [
 evaluation = dict(interval=20, metric='mAP', save_best='AP')
 checkpoint_config = dict(interval=5)
 
-resume_from = '/home/vortex/stavmits/mmpose/work_dirs/hrnet_w48_coco_256x192/epoch_110.pth'
+#resume_from = '/home/vortex/stavmits/mmpose/work_dirs/hrnet_w48_coco_256x192/epoch_110.pth'
 
 optimizer = dict(
     type='Adam',
