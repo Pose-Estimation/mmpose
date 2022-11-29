@@ -1,4 +1,3 @@
-# TODO fix colors
 dataset_info = dict(
     dataset_name="hockey",
     paper_info=dict(

@@ -1,6 +1,8 @@
+import math
 import os
 import json
 import re
+from typing import List
 from PIL import Image
 import numpy as np
 import pandas as pd
@@ -13,41 +15,27 @@ VIDEO_POSE_TYPES = {
             450, 474, 167, 175, 494, 353, 354, 532, 558, 570, 625, 232, 56,
             135, 141, 146, 429, 588
         ],
-        "train":
-        23,
-        "validate":
-        5,
-        "test":
-        5,
-        "total":
-        33
     },
     "Slashing": {
         "slow": [
             305, 217, 245, 45, 306, 307, 336, 515, 218, 241, 391, 409, 306,
             323, 7, 20, 82, 87, 127, 143, 149, 139, 413
         ],
-        "train":
-        19,
-        "validate":
-        4,
-        "test":
-        4,
-        "total":
-        27
     },
     "Tripping": {
         "slow": [149, 13, 471, 503, 522, 215, 235, 382, 408, 70, 6, 137],
-        "train": 14,
-        "validate": 3,
-        "test": 3,
-        "total": 20
     }
 }
-OS_DIR = ["train", "validate", "test"]
+
+# List of directories for full dataset
+OS_DIR = ["full_data", "train", "validate", "test"]
 
 
-def create_coco_dict():
+def create_coco_dict() -> dict:
+    """
+        Method that creates a dictionary object with the COCO format
+        https://cocodataset.org/#format-data
+    """
     coco_dict = {}
     coco_dict["images"] = []
     coco_dict["annotations"] = []
@@ -98,7 +86,11 @@ def create_coco_dict():
     return coco_dict
 
 
-def get_json_type(frame_id, train_list, validate_list):
+def get_json_type(frame_id: int, train_list: List[int],
+                  validate_list: List[int]):
+    """
+        Method that matches an index to a set type (train/validate/test)
+    """
     if frame_id in train_list:
         return "train"
     elif frame_id in validate_list:
@@ -110,22 +102,30 @@ def get_json_type(frame_id, train_list, validate_list):
 def main():
     annotation_id = 0  # increment this to have unique id for each annotation
 
+    # Create dictionary for each set type
     splits = {
         "train": create_coco_dict(),
         "validate": create_coco_dict(),
         "test": create_coco_dict()
     }
 
-    np.random.seed(0)
-
     image_id = 0
 
-    filtered_videos = pd.read_csv("C:/Users/stavro/Desktop/capstone/filtered_videos.csv")
 
+    # Only use videos with no fans included
+    filtered_videos = pd.read_csv("./filtered_videos.csv")
+
+    # Create new directories if they do not already exist
     for data_dir in OS_DIR:
-        if not os.path.isdir(f'{PATH_TO_VIDEOPOSE}/{data_dir}'):
-            os.mkdir(f'{PATH_TO_VIDEOPOSE}/{data_dir}')
+        if not os.path.isdir(
+                f'{PATH_TO_VIDEOPOSE}/{data_dir}') and not os.path.isdir(
+                    f'{PATH_TO_VIDEOPOSE}/full_data/{data_dir}'):
+            if data_dir == "full_data":
+                os.mkdir(f'{PATH_TO_VIDEOPOSE}/{data_dir}')
+            else:
+                os.mkdir(f'{PATH_TO_VIDEOPOSE}/full_data/{data_dir}')
 
+    # Iterate through each penalty type
     for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
         video_dir_full_path = os.path.join(PATH_TO_VIDEOPOSE, video_dir_name)
         if (not os.path.isfile(video_dir_full_path)
@@ -134,30 +134,39 @@ def main():
                 f"\nConverting custom jsons in {video_dir_name} directory to coco format:"
             )
 
+            # Retrieve slow motion videos and filter out games
             slowmo = VIDEO_POSE_TYPES[video_dir_name]["slow"]
-            games = filtered_videos[video_dir_name].to_list()
+            games = filtered_videos[video_dir_name].dropna().to_list()
+            
+            # Randomly assign indices to different sets
+            game_count = len(games)
+            indices = np.arange(game_count)
+            np.random.seed(0)
+            np.random.shuffle(indices)
+            train_index = math.floor(0.75 * game_count)
+            train_list = indices[:train_index]
+            val_list = indices[train_index:math.floor(0.85 * game_count)]
 
             start_id = image_id
-            indices = np.arange(VIDEO_POSE_TYPES[video_dir_name]["total"])
-            np.random.shuffle(indices)
-
-            train_index = VIDEO_POSE_TYPES[video_dir_name]["train"]
-            train_list = indices[:train_index]
-            val_list = indices[train_index:train_index +
-                               VIDEO_POSE_TYPES[video_dir_name]["validate"]]
             frame_index = 0
+            
+            # Iterate through each game folder
             for game_dir_name in os.listdir(video_dir_full_path):
                 game_dir_full_path = os.path.join(video_dir_full_path,
                                                   game_dir_name)
 
                 if not os.path.isfile(
                         game_dir_full_path) and game_dir_name in games:
+                    
+                    # Verify if the current video is slowed down
                     game_number = re.search("[0-9]{2,3}$", game_dir_name)
                     is_slowed = int(game_number.group(
                         0)) in slowmo if game_number else False
 
-                    json_type = get_json_type(frame_index, train_list, val_list)
+                    json_type = get_json_type(frame_index, train_list,
+                                              val_list)
                     print(f"Converting {game_dir_full_path}...")
+                    
                     opened_file = open(
                         f"{game_dir_full_path}/{game_dir_name}.json")
                     json_file = json.load(opened_file)
@@ -176,8 +185,10 @@ def main():
                                 f"{game_dir_full_path}/{game_file}")
                             width = img.width
                             height = img.height
+                            
+                            # Copy image to new directory
                             img.save(
-                                f"{PATH_TO_VIDEOPOSE}/{json_type}/{temp_id}.png"
+                                f"{PATH_TO_VIDEOPOSE}/full_data/{json_type}/{temp_id}.png"
                             )
 
                             image_dict = {
@@ -192,6 +203,7 @@ def main():
                     # annotations
                     for frame in json_file:
 
+                        # Take every fourth image if video is slowed down
                         if is_slowed and not ((image_id - start_id) % 4 == 0):
                             continue
 
@@ -215,7 +227,6 @@ def main():
 
                                 annotation["num_keypoints"] = num_keypoints
                                 annotation["image_id"] = image_id
-                                # Only need 1 category for person?
                                 annotation["category_id"] = 1
                                 annotation["id"] = annotation_id
 
@@ -224,15 +235,16 @@ def main():
                                 splits[json_type]["annotations"].append(
                                     annotation)
                         image_id += 1
-                    
-                    frame_index +=1
-                        # checked_categories = True
+
+                    frame_index += 1
+
             print(
                 f"\nFinished Processing images for {video_dir_name} at index {image_id}"
             )
 
+    # Create json files
     for key, value in splits.items():
-        coco_file_name = f"{PATH_TO_VIDEOPOSE}/{key}/{key}-coco.json"
+        coco_file_name = f"{PATH_TO_VIDEOPOSE}/full_data/{key}/{key}-coco.json"
         with open(coco_file_name, "w") as outfile:
             json.dump(value, outfile, indent=4)
             outfile.close()
