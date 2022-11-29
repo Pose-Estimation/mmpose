@@ -111,6 +111,7 @@ def main():
 
     image_id = 0
 
+
     # Only use videos with no fans included
     filtered_videos = pd.read_csv("./filtered_videos.csv")
 
