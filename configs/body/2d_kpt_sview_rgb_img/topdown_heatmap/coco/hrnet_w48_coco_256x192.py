@@ -93,7 +93,7 @@ data_cfg_train = dict(
     bbox_file='/home/vortex/stavmits/capstone/video_pose/video_pose/train_test_validate/train/train-bbox-only.json',
 )
 
-data_cfg_test = dict(
+data_cfg = dict(
     image_size=[192, 256],
     heatmap_size=[48, 64],
     num_output_channels=channel_cfg['num_output_channels'],
@@ -106,7 +106,7 @@ data_cfg_test = dict(
     vis_thr=0.2,
     use_gt_bbox=True,
     det_bbox_thr=0.0,
-    bbox_file='/home/vortex/stavmits/capstone/video_pose/video_pose/train_test_validate/test/test-bbox-only.json',
+    bbox_file='C:/Users/stavro/Desktop/capstone/video_pose/video_pose/train_test_validate/test/test-bbox-only.json',
 )
 
 data_cfg_validate = dict(
@@ -174,7 +174,7 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = '/home/vortex/stavmits/capstone/video_pose/video_pose/train_test_validate'
+data_root = 'C:/Users/stavro/Desktop/capstone/video_pose/video_pose/train_test_validate'
 data = dict(
     samples_per_gpu=2,
     workers_per_gpu=2,
@@ -199,7 +199,7 @@ data = dict(
         type='TopDownCocoDataset',
         ann_file=f'{data_root}/test/test-bbox-appended.json',
         img_prefix=f'{data_root}/test/',
-        data_cfg=data_cfg_test,
+        data_cfg=data_cfg,
         pipeline=test_pipeline,
         dataset_info={{_base_.dataset_info}}),
 )
