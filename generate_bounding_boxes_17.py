@@ -62,27 +62,36 @@ if __name__ == "__main__":
                 nosex = playerKeypoints[0]
                 nosey = playerKeypoints[1]
                 noseVisibility = playerKeypoints[2]
-                earx = playerKeypoints[3]
-                eary = playerKeypoints[4]
+                earx = playerKeypoints[9]
+                eary = playerKeypoints[10]
 
                 halfFaceDistance = 0
                 # don't calculate half face distance if nose or ear is out of frame
                 if (not ((nosex == 0 and nosey == 0) or (earx == 0 and eary == 0))):
                     halfFaceDistance = math.sqrt((nosex - earx) * (nosex - earx) + (nosey - eary) * (nosey - eary))
 
+                    width = maxx - minx
+                    height = maxy - miny
+
+                    if (nosex == 530.4505999999999):
+                        print(f'halfFaceDistance: {halfFaceDistance}, width: {width}, height: {height}')
                     # Increment the size of the bounding box, making sure to stay in frame
-                    minx = np.maximum(0.0, minx - 4*halfFaceDistance)
-                    maxx = np.minimum(float(imageWidth), maxx + 4*halfFaceDistance)
-                    miny = np.maximum(0.0, miny - 4*halfFaceDistance)
-                    maxy = np.minimum(float(imageHeight), maxy + 4*halfFaceDistance)
+                    minx = np.maximum(0.0, minx - np.maximum(4*halfFaceDistance, width * 0.2))
+                    maxx = np.minimum(float(imageWidth), maxx + np.maximum(4*halfFaceDistance, width * 0.2))
+                    miny = np.maximum(0.0, miny - np.maximum(4*halfFaceDistance, height * 0.3))
+                    maxy = np.minimum(float(imageHeight), maxy + np.maximum(4*halfFaceDistance, height * 0.3))
+
                 else:
                     #if nose or neck is out of frame, just increase by 20%
                     width = maxx - minx
                     height = maxy - miny
-                    minx = np.maximum(0.0, minx -width * 0.1)
-                    maxx = np.minimum(float(imageWidth), maxx + width * 0.1)
-                    miny = np.maximum(0.0, miny - height * 0.1)
-                    maxy = np.minimum(float(imageHeight), maxy + height * 0.1)
+                    minx = np.maximum(0.0, minx -width * 0.2)
+                    maxx = np.minimum(float(imageWidth), maxx + width * 0.2)
+                    miny = np.maximum(0.0, miny - height * 0.2)
+                    maxy = np.minimum(float(imageHeight), maxy + height * 0.2)
+
+                if (nosex == 335.40799999999996):
+                    print(f"halfFaceDistance: {halfFaceDistance}, minx: {minx}, miny: {miny}, maxx: {maxx}, maxy: {maxy}")
 
                 #If there are any keypoints out of frame, check whether the player is close to the border and extend. 
                 # 30 is chosen arbitrarily; better system for close would be ideal
@@ -112,6 +121,7 @@ if __name__ == "__main__":
             
             # Set the bbox attribute in the json data
             player["bbox"] = bbox
+            player["num_keypoints"] = 17
 
             player_bboxonly = {}
             player_bboxonly["bbox"] = bbox
