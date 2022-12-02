@@ -105,7 +105,7 @@ data_cfg = dict(
     vis_thr=0.2,
     use_gt_bbox=True,
     det_bbox_thr=0.0,
-    bbox_file='C:/Users/stavro/Desktop/capstone/video_pose/video_pose/train_test_validate/test/test-17-bbox-only.json',
+    bbox_file='C:/Users/stavro/Desktop/capstone/video_pose/video_pose/train_test_validate/test/test-17-bbox-only-coco.json',
 )
 
 data_cfg_validate = dict(
@@ -196,7 +196,7 @@ data = dict(
         dataset_info={{_base_.dataset_info}}),
     test=dict(
         type='TopDownCocoDataset',
-        ann_file=f'{data_root}/test/test-17-bbox-appended.json',
+        ann_file=f'{data_root}/test/test-17-bbox-appended-coco.json',
         img_prefix=f'{data_root}/test/',
         data_cfg=data_cfg,
         pipeline=test_pipeline,

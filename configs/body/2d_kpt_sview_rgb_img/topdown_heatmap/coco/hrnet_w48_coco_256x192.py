@@ -106,7 +106,7 @@ data_cfg = dict(
     vis_thr=0.2,
     use_gt_bbox=True,
     det_bbox_thr=0.0,
-    bbox_file='C:/Users/stavro/Desktop/capstone/video_pose/video_pose/train_test_validate/test/test-bbox-only.json',
+    bbox_file='C:/Users/stavro/Desktop\capstone/video_pose/video_pose/train_test_validate/test/test-bbox-only.json',
 )
 
 data_cfg_validate = dict(
@@ -174,7 +174,7 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = 'C:/Users/stavro/Desktop/capstone/video_pose/video_pose/train_test_validate'
+data_root = 'C:/Users/stavro/Desktop\capstone/video_pose/video_pose/train_test_validate/'
 data = dict(
     samples_per_gpu=2,
     workers_per_gpu=2,
