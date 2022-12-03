@@ -92,7 +92,6 @@ This training config uses many of the parameters from the original file while ad
 | 05/12/2017 ANA-VGK  | 0.781     | 0.996      | 0.934      |  0.831     | 1.00       |
 | 07/01/2018 FLA-CBJ  | 0.730     | 1.00       | 0.896      |  0.786     | 1.00       |
 | 17/01/2018 MTL-BOS  | 0.733     | 0.964      | 0.921      |  0.777     | 0.977      |
-### Fine-Tuned Model
 
 ### Fine-Tuned Model
 |  Game               |  AP       | AP .5      | AP .75     |  AR        | AR .5      |
