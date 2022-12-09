@@ -1,34 +1,26 @@
 _base_ = [
     '../../../../_base_/default_runtime.py',
-    '../../../../_base_/datasets/hockey.py'
+    '../../../../_base_/datasets/coco.py'
 ]
-
-checkpoint_config = dict(interval=25)
-
-load_from = "https://download.openmmlab.com/mmpose/bottom_up/hrnet_w32_coco_512x512-bcb8c247_20200816.pth"
-
-evaluation = dict(interval=30, metric='mAP', save_best='AP')
+checkpoint_config = dict(interval=20)
+evaluation = dict(interval=20, metric='mAP', save_best='AP')
 
 optimizer = dict(
     type='Adam',
-    lr=0.0015,
+    lr=0.001,
 )
 optimizer_config = dict(grad_clip=None)
 # learning policy
-lr_config = dict(
-    policy='step',
-    warmup='linear',
-    warmup_iters=10,
-    warmup_ratio=0.001,
-    step=[50, 75])
-total_epochs = 100
-
-
+lr_config = dict(policy='step', step=[90, 120])
+total_epochs = 140
 channel_cfg = dict(
-    dataset_joints=14,
-    dataset_channel=list(range(14)),
-    inference_channel=list(range(14)))
-
+    dataset_joints=17,
+    dataset_channel=[
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+    ],
+    inference_channel=[
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+    ])
 
 data_cfg = dict(
     image_size=512,
@@ -40,13 +32,17 @@ data_cfg = dict(
     inference_channel=channel_cfg['inference_channel'],
     num_scales=1,
     scale_aware_sigma=False,
+    with_bbox=True,
+    use_nms=True,
+    soft_nms=False,
+    oks_thr=0.8,
 )
 
 # model settings
 model = dict(
-    type='AssociativeEmbedding',
+    type='CID',
     pretrained='https://download.openmmlab.com/mmpose/'
-    '/bottom_up/hrnet_w32_coco_512x512-bcb8c247_20200816.pth',
+    'pretrain_models/hrnet_w48-8ef0771d.pth',
     backbone=dict(
         type='HRNet',
         in_channels=3,
@@ -62,58 +58,38 @@ model = dict(
                 num_branches=2,
                 block='BASIC',
                 num_blocks=(4, 4),
-                num_channels=(32, 64)),
+                num_channels=(48, 96)),
             stage3=dict(
                 num_modules=4,
                 num_branches=3,
                 block='BASIC',
                 num_blocks=(4, 4, 4),
-                num_channels=(32, 64, 128)),
+                num_channels=(48, 96, 192)),
             stage4=dict(
                 num_modules=3,
                 num_branches=4,
                 block='BASIC',
                 num_blocks=(4, 4, 4, 4),
-                num_channels=(32, 64, 128, 256))),
+                num_channels=(48, 96, 192, 384),
+                multiscale_output=True)),
     ),
     keypoint_head=dict(
-        type='AESimpleHead',
-        in_channels=32,
-        num_joints=14,
-        num_deconv_layers=0,
-        tag_per_joint=True,
-        with_ae_loss=[True],
-        extra=dict(final_conv_kernel=1, ),
-        loss_keypoint=dict(
-            type='MultiLossFactory',
-            num_joints=14,
-            num_stages=1,
-            ae_loss_type='exp',
-            with_ae_loss=[True],
-            push_loss_factor=[0.001],
-            pull_loss_factor=[0.001],
-            with_heatmaps_loss=[True],
-            heatmaps_loss_factor=[1.0])),
+        type='CIDHead',
+        in_channels=720,
+        gfd_channels=48,
+        num_joints=17,
+        multi_hm_loss_factor=1.0,
+        single_hm_loss_factor=4.0,
+        contrastive_loss_factor=1.0,
+        max_train_instances=200,
+        prior_prob=0.01),
     train_cfg=dict(),
-
     test_cfg=dict(
         num_joints=channel_cfg['dataset_joints'],
+        flip_test=True,
         max_num_people=30,
-        scale_factor=[1],
-        with_heatmaps=[True],
-        with_ae=[True],
-        project2image=True,
-        align_corners=False,
-        nms_kernel=5,
-        nms_padding=2,
-        tag_per_joint=True,
-        detection_threshold=0.1,
-        tag_threshold=1,
-        use_detection_val=True,
-        ignore_too_much=False,
-        adjust=True,
-        refine=True,
-        flip_test=True))
+        detection_threshold=0.01,
+        center_pool_kernel=3))
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),
@@ -130,13 +106,15 @@ train_pipeline = [
         mean=[0.485, 0.456, 0.406],
         std=[0.229, 0.224, 0.225]),
     dict(
-        type='BottomUpGenerateTarget',
-        sigma=2,
+        type='CIDGenerateTarget',
         max_num_people=30,
     ),
     dict(
         type='Collect',
-        keys=['img', 'joints', 'targets', 'masks'],
+        keys=[
+            'img', 'multi_heatmap', 'multi_mask', 'instance_coord',
+            'instance_heatmap', 'instance_mask', 'instance_valid'
+        ],
         meta_keys=[]),
 ]
 
@@ -163,31 +141,30 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-#Set data path here
-data_root = 'C:/Users/Admin/Desktop/Datasets/video_pose/full_data'
+data_root = 'data/coco'
 data = dict(
     workers_per_gpu=2,
-    train_dataloader=dict(samples_per_gpu=4),
+    train_dataloader=dict(samples_per_gpu=20),
     val_dataloader=dict(samples_per_gpu=1),
     test_dataloader=dict(samples_per_gpu=1),
     train=dict(
         type='BottomUpCocoDataset',
-        ann_file=f'{data_root}/train/train-bbox-appended.json',
-        img_prefix=f'{data_root}/train/',
+        ann_file=f'{data_root}/annotations/person_keypoints_train2017.json',
+        img_prefix=f'{data_root}/train2017/',
         data_cfg=data_cfg,
         pipeline=train_pipeline,
         dataset_info={{_base_.dataset_info}}),
     val=dict(
         type='BottomUpCocoDataset',
-        ann_file=f'{data_root}/validate/validate-bbox-appended.json',
-        img_prefix=f'{data_root}/validate/',
+        ann_file=f'{data_root}/annotations/person_keypoints_val2017.json',
+        img_prefix=f'{data_root}/val2017/',
         data_cfg=data_cfg,
         pipeline=val_pipeline,
         dataset_info={{_base_.dataset_info}}),
     test=dict(
         type='BottomUpCocoDataset',
-        ann_file=f'{data_root}/test/test-bbox-appended.json',
-        img_prefix=f'{data_root}/test/',
+        ann_file=f'{data_root}/annotations/person_keypoints_val2017.json',
+        img_prefix=f'{data_root}/val2017/',
         data_cfg=data_cfg,
         pipeline=test_pipeline,
         dataset_info={{_base_.dataset_info}}),

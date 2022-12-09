@@ -1,12 +1,15 @@
 _base_ = [
     '../../../../_base_/default_runtime.py',
-    '../../../../_base_/datasets/coco.py'
+    '../../../../_base_/datasets/hockey.py'
 ]
-evaluation = dict(interval=10, metric='mAP', save_best='AP')
+evaluation = dict(interval=20, metric='mAP', save_best='AP')
+checkpoint_config = dict(interval=5)
+
+resume_from = '/home/vortex/stavmits/mmpose/work_dirs/hrnet_w48_coco_256x192/epoch_110.pth'
 
 optimizer = dict(
     type='Adam',
-    lr=5e-4,
+    lr=5e-5,
 )
 optimizer_config = dict(grad_clip=None)
 # learning policy
@@ -15,17 +18,16 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=0.001,
-    step=[170, 200])
-total_epochs = 210
+    step=[50, 80])
+total_epochs = 150
 channel_cfg = dict(
-    num_output_channels=17,
-    dataset_joints=17,
+    num_output_channels=14,
+    dataset_joints=14,
     dataset_channel=[
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
     ],
     inference_channel=[
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
-    ])
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
 
 # model settings
 model = dict(
@@ -75,7 +77,7 @@ model = dict(
         shift_heatmap=True,
         modulate_kernel=11))
 
-data_cfg = dict(
+data_cfg_train = dict(
     image_size=[192, 256],
     heatmap_size=[48, 64],
     num_output_channels=channel_cfg['num_output_channels'],
@@ -86,11 +88,44 @@ data_cfg = dict(
     nms_thr=1.0,
     oks_thr=0.9,
     vis_thr=0.2,
-    use_gt_bbox=False,
+    use_gt_bbox=True,
     det_bbox_thr=0.0,
-    bbox_file='data/coco/person_detection_results/'
-    'COCO_val2017_detections_AP_H_56_person.json',
+    bbox_file='/home/vortex/stavmits/capstone/video_pose/video_pose/train_test_validate/train/train-bbox-only.json',
 )
+
+data_cfg_test = dict(
+    image_size=[192, 256],
+    heatmap_size=[48, 64],
+    num_output_channels=channel_cfg['num_output_channels'],
+    num_joints=channel_cfg['dataset_joints'],
+    dataset_channel=channel_cfg['dataset_channel'],
+    inference_channel=channel_cfg['inference_channel'],
+    soft_nms=False,
+    nms_thr=1.0,
+    oks_thr=0.9,
+    vis_thr=0.2,
+    use_gt_bbox=True,
+    det_bbox_thr=0.0,
+    bbox_file='/home/vortex/stavmits/capstone/video_pose/video_pose/train_test_validate/test/test-bbox-only.json',
+)
+
+data_cfg_validate = dict(
+    image_size=[192, 256],
+    heatmap_size=[48, 64],
+    num_output_channels=channel_cfg['num_output_channels'],
+    num_joints=channel_cfg['dataset_joints'],
+    dataset_channel=channel_cfg['dataset_channel'],
+    inference_channel=channel_cfg['inference_channel'],
+    soft_nms=False,
+    nms_thr=1.0,
+    oks_thr=0.9,
+    vis_thr=0.2,
+    use_gt_bbox=True,
+    det_bbox_thr=0.0,
+    bbox_file='/home/vortex/stavmits/capstone/video_pose/video_pose/train_test_validate/validate/validate-bbox-only.json',
+)
+
+
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),
@@ -139,31 +174,32 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = 'data/coco'
+data_root = '/home/vortex/stavmits/capstone/video_pose/video_pose/train_test_validate'
 data = dict(
-    samples_per_gpu=32,
+    samples_per_gpu=2,
     workers_per_gpu=2,
-    val_dataloader=dict(samples_per_gpu=32),
-    test_dataloader=dict(samples_per_gpu=32),
+    train_dataloader=dict(samples_per_gpu=4),
+    val_dataloader=dict(samples_per_gpu=1),
+    test_dataloader=dict(samples_per_gpu=1),
     train=dict(
         type='TopDownCocoDataset',
-        ann_file=f'{data_root}/annotations/person_keypoints_train2017.json',
-        img_prefix=f'{data_root}/train2017/',
-        data_cfg=data_cfg,
+        ann_file=f'{data_root}/train/train-bbox-appended.json',
+        img_prefix=f'{data_root}/train/',
+        data_cfg=data_cfg_train,
         pipeline=train_pipeline,
         dataset_info={{_base_.dataset_info}}),
     val=dict(
         type='TopDownCocoDataset',
-        ann_file=f'{data_root}/annotations/person_keypoints_val2017.json',
-        img_prefix=f'{data_root}/val2017/',
-        data_cfg=data_cfg,
+        ann_file=f'{data_root}/validate/validate-bbox-appended.json',
+        img_prefix=f'{data_root}/validate/',
+        data_cfg=data_cfg_validate,
         pipeline=val_pipeline,
         dataset_info={{_base_.dataset_info}}),
     test=dict(
         type='TopDownCocoDataset',
-        ann_file=f'{data_root}/annotations/person_keypoints_val2017.json',
-        img_prefix=f'{data_root}/val2017/',
-        data_cfg=data_cfg,
+        ann_file=f'{data_root}/test/test-bbox-appended.json',
+        img_prefix=f'{data_root}/test/',
+        data_cfg=data_cfg_test,
         pipeline=test_pipeline,
         dataset_info={{_base_.dataset_info}}),
 )
