@@ -23,7 +23,7 @@ if __name__ == "__main__":
                 if not os.path.isfile(game_dir_full_path):
                     print(f"Converting {game_dir_full_path}...")
 
-                    f = open(f"{game_dir_full_path}/{game_dir_name}-coco.json")
+                    f = open(f"{game_dir_full_path}\{game_dir_name}-coco.json")
                     data = json.load(f)
                     f.close()
                     data_bboxonly = []
@@ -123,7 +123,6 @@ if __name__ == "__main__":
                         # Set the bbox attribute in the json data
                         player["bbox"] = bbox
                         player["area"] = 0.9 * width * height
-
                         player_bboxonly = {}
                         player_bboxonly["bbox"] = bbox
                         player_bboxonly["category_id"] = player["category_id"]
@@ -141,8 +140,3 @@ if __name__ == "__main__":
                     outputFile = open(outputFilenameString, "w")
                     outputJson = json.dump(data_bboxonly, outputFile, indent=4)
                     outputFile.close()
-
-
-
-
-
