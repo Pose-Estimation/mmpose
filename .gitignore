@@ -6,7 +6,9 @@ __pycache__/
 
 # Visualizations
 vis_results/
-
+*.jpg
+*.mp4
+filtered_videos.csv
 
 # C extensions
 *.so
