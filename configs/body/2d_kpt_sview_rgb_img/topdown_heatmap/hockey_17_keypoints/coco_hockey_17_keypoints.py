@@ -88,7 +88,7 @@ data_cfg = dict(
     vis_thr=0.2,
     use_gt_bbox=False,
     det_bbox_thr=0.0,
-    bbox_file='C:/Users/stavro/Desktop/capstone/video_pose/video_pose/train_test_validate/test/test-17-bbox-only-coco.json',
+    bbox_file='C:/Users/stavro/Desktop/capstone/inference_set_untrained/_2018-01-17-mtl-bos-national87/_2018-01-17-mtl-bos-national87-17-bbox-only-coco.json',
 )
 
 train_pipeline = [
@@ -138,7 +138,7 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = 'C:/Users/stavro/Desktop\capstone/video_pose/video_pose/train_test_validate'
+data_root = 'C:/Users/stavro/Desktop/capstone/inference_set_untrained'
 data = dict(
     samples_per_gpu=32,
     workers_per_gpu=2,
@@ -160,8 +160,8 @@ data = dict(
         dataset_info={{_base_.dataset_info}}),
     test=dict(
         type='TopDownCocoDataset',
-        ann_file=f'{data_root}/test/test-17-bbox-appended-coco.json',
-        img_prefix=f'{data_root}/test/',
+        ann_file=f'{data_root}/_2018-01-17-mtl-bos-national87/_2018-01-17-mtl-bos-national87-17-bbox-appended-coco.json',
+        img_prefix=f'{data_root}/_2018-01-17-mtl-bos-national87/',
         data_cfg=data_cfg,
         pipeline=test_pipeline,
         dataset_info={{_base_.dataset_info}}),
