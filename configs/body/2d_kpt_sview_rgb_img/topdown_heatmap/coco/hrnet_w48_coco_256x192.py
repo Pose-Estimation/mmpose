@@ -178,7 +178,7 @@ data_root = '/home/vortex/stavmits/capstone/video_pose/video_pose/full_data'
 data = dict(
     samples_per_gpu=2,
     workers_per_gpu=2,
-    train_dataloader=dict(samples_per_gpu=8),
+    train_dataloader=dict(samples_per_gpu=4),
     val_dataloader=dict(samples_per_gpu=1),
     test_dataloader=dict(samples_per_gpu=1),
     train=dict(
