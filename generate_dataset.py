@@ -30,6 +30,9 @@ VIDEO_POSE_TYPES = {
 # List of directories for full dataset
 OS_DIR = ["full_data", "train", "validate", "test"]
 
+TRAINING_PERCENTAGE = 0.70
+VALIDATION_PERCENTAGE = 0.10
+
 
 def create_coco_dict() -> dict:
     """
@@ -111,7 +114,6 @@ def main():
 
     image_id = 0
 
-
     # Only use videos with no fans included
     filtered_videos = pd.read_csv("C:/Users/stavro/Desktop/capstone/filtered_videos.csv")
 
@@ -137,19 +139,21 @@ def main():
             # Retrieve slow motion videos and filter out games
             slowmo = VIDEO_POSE_TYPES[video_dir_name]["slow"]
             games = filtered_videos[video_dir_name].dropna().to_list()
-            
+
             # Randomly assign indices to different sets
             game_count = len(games)
             indices = np.arange(game_count)
             np.random.seed(0)
             np.random.shuffle(indices)
-            train_index = math.floor(0.70 * game_count)
+            train_index = math.floor(TRAINING_PERCENTAGE * game_count)
             train_list = indices[:train_index]
-            val_list = indices[train_index:math.floor(0.85 * game_count)]
+            val_list = indices[train_index:math.floor((VALIDATION_PERCENTAGE +
+                                                       TRAINING_PERCENTAGE) *
+                                                      game_count)]
 
             start_id = image_id
             frame_index = 0
-            
+
             # Iterate through each game folder
             for game_dir_name in os.listdir(video_dir_full_path):
                 game_dir_full_path = os.path.join(video_dir_full_path,
@@ -157,7 +161,7 @@ def main():
 
                 if not os.path.isfile(
                         game_dir_full_path) and game_dir_name in games:
-                    
+
                     # Verify if the current video is slowed down
                     game_number = re.search("[0-9]{2,3}$", game_dir_name)
                     is_slowed = int(game_number.group(
@@ -166,7 +170,7 @@ def main():
                     json_type = get_json_type(frame_index, train_list,
                                               val_list)
                     print(f"Converting {game_dir_full_path}...")
-                    
+
                     opened_file = open(
                         f"{game_dir_full_path}/{game_dir_name}.json")
                     json_file = json.load(opened_file)
@@ -186,7 +190,7 @@ def main():
                                 f"{game_dir_full_path}/{game_file}")
                             width = img.width
                             height = img.height
-                            
+
                             # Copy image to new directory
                             img.save(
                                 f"{PATH_TO_VIDEOPOSE}/full_data/{json_type}/{temp_id}.png"
