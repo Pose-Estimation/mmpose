@@ -109,8 +109,8 @@ def procrustes(predicted, target):
 
 
 matcher = PoseMatcher(
-    top_down_path="results_keypoints_td.json",
-    btm_up_path="results_keypoints_bu.json",
+    top_down_path="result_keypoints_td.json",
+    btm_up_path="result_keypoints_bu.json",
 )
 matcher.match(
     pts_out_path="/output",
