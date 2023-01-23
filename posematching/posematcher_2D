@@ -19,17 +19,18 @@ class PoseMatcher:
             result = np.exp(-dist / (2 * sigma**2)).mean()
             return result
 
-        max_idx = 0
+        # max_idx = 0
         max_oks = 0
         max_pts = 0
         for i in range(len(targets)):
-            aligned_target = procrustes(targets[i], ref)
+            aligned_target = self._procrustes(targets[i], ref)
             oks = OKS(ref, aligned_target)
             if oks > max_oks:
                 max_oks = oks
-                max_idx = i
+                # max_idx = i
                 max_pts = aligned_target
-        return max_pts, max_idx
+        return max_pts
+        # return max_pts, max_idx
 
     def match(self, pts_out_path):
         # create directory
@@ -46,14 +47,14 @@ class PoseMatcher:
         length = len(td_estimations)
         for annotation in range(length):
 
-            bu_pts = bu_estimations[annotation]["keypoints"]
-            bu_pts = np.float32(bu_pts).transpose(
-                [0, 2, 1]
-            )  # Keep axis 0 at 0, put axis 2 at 1, put axis 1 at 2 (so swap 1 and 2)
+            bu_pts = self._format_keypoints(bu_estimations[annotation]["keypoints"])
+            td_estimations[annotation]["keypoints"] = self._format_keypoints(
+                td_estimations[annotation]["keypoints"]
+            )
 
             buff_p = []
             for p in td_estimations[annotation]:
-                p_aligned, idx = self._best_match(p, bu_pts)
+                p_aligned = self._best_match(p, bu_pts)
                 buff_p.append(p_aligned)
 
             results.append(buff_p)
@@ -68,44 +69,55 @@ class PoseMatcher:
                 image_id = cur_image_id
                 results = []
 
+    def _format_keypoints(self, keypoints):
+        xs = []
+        ys = []
+        cs = []
 
-def procrustes(predicted, target):
-    predicted = predicted.T
-    target = target.T
-    predicted = predicted[None, ...]
-    target = target[None, ...]
+        for x, y, c in np.split(np.array(keypoints), len(keypoints) // 3):
+            xs.append(x)
+            ys.append(y)
+            cs.append(c)
 
-    muX = np.mean(target, axis=1, keepdims=True)
-    muY = np.mean(predicted, axis=1, keepdims=True)
+        return np.array([np.array(xs), np.array(ys), np.array(cs)])
 
-    X0 = target - muX
-    Y0 = predicted - muY
+    def _procrustes(self, predicted, target):
+        predicted = predicted.T
+        target = target.T
+        predicted = predicted[None, ...]
+        target = target[None, ...]
 
-    normX = np.sqrt(np.sum(X0**2, axis=(1, 2), keepdims=True))
-    normY = np.sqrt(np.sum(Y0**2, axis=(1, 2), keepdims=True))
+        muX = np.mean(target, axis=1, keepdims=True)
+        muY = np.mean(predicted, axis=1, keepdims=True)
 
-    X0 /= normX
-    Y0 /= normY
+        X0 = target - muX
+        Y0 = predicted - muY
 
-    H = np.matmul(X0.transpose(0, 2, 1), Y0)
-    U, s, Vt = np.linalg.svd(H)
-    V = Vt.transpose(0, 2, 1)
-    R = np.matmul(V, U.transpose(0, 2, 1))
+        normX = np.sqrt(np.sum(X0**2, axis=(1, 2), keepdims=True))
+        normY = np.sqrt(np.sum(Y0**2, axis=(1, 2), keepdims=True))
 
-    # Avoid improper rotations (reflections), i.e. rotations with det(R) = -1
-    sign_detR = np.sign(np.expand_dims(np.linalg.det(R), axis=1))
-    V[:, :, -1] *= sign_detR
-    s[:, -1] *= sign_detR.flatten()
-    R = np.matmul(V, U.transpose(0, 2, 1))  # Rotation
+        X0 /= normX
+        Y0 /= normY
 
-    tr = np.expand_dims(np.sum(s, axis=1, keepdims=True), axis=2)
+        H = np.matmul(X0.transpose(0, 2, 1), Y0)
+        U, s, Vt = np.linalg.svd(H)
+        V = Vt.transpose(0, 2, 1)
+        R = np.matmul(V, U.transpose(0, 2, 1))
 
-    a = tr * normX / normY  # Scale
-    t = muX - a * np.matmul(muY, R)  # Translation
+        # Avoid improper rotations (reflections), i.e. rotations with det(R) = -1
+        sign_detR = np.sign(np.expand_dims(np.linalg.det(R), axis=1))
+        V[:, :, -1] *= sign_detR
+        s[:, -1] *= sign_detR.flatten()
+        R = np.matmul(V, U.transpose(0, 2, 1))  # Rotation
 
-    # Perform rigid transformation on the input
-    predicted_aligned = a * np.matmul(predicted, R) + t
-    return predicted_aligned[0].T
+        tr = np.expand_dims(np.sum(s, axis=1, keepdims=True), axis=2)
+
+        a = tr * normX / normY  # Scale
+        t = muX - a * np.matmul(muY, R)  # Translation
+
+        # Perform rigid transformation on the input
+        predicted_aligned = a * np.matmul(predicted, R) + t
+        return predicted_aligned[0].T
 
 
 matcher = PoseMatcher(
