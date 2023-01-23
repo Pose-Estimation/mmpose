@@ -21,6 +21,6 @@ class IntegrationNet(M.Model):
 		w_pt = x
 		w_pt = torch.sigmoid(w_pt)
 		pts = w_pt * pts[:,0] + (1 - w_pt) * pts[:,1]  # use a weighted-sum term to increase the robustness
-		pts = pts.reshape(bsize, 2, 14)
+		pts = pts.reshape(bsize, 3, 14)
 
 		return pts
