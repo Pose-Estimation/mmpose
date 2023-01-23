@@ -1,0 +1,117 @@
+from collections import defaultdict
+import json
+import numpy as np
+import pickle
+import os
+
+
+class PoseMatcher:
+    def __init__(self, top_down_path, btm_up_path):
+        self.top_down_path = top_down_path
+        self.btm_up_path = btm_up_path
+
+    def _best_match(self, ref, targets):
+        def OKS(p1, p2):
+            sigma = 0.05
+            p1_selected = p1[:2]
+            p2_selected = p2[:2]
+            dist = np.square(p1_selected - p2_selected).sum(axis=0)
+            result = np.exp(-dist / (2 * sigma**2)).mean()
+            return result
+
+        max_idx = 0
+        max_oks = 0
+        max_pts = 0
+        for i in range(len(targets)):
+            aligned_target = procrustes(targets[i], ref)
+            oks = OKS(ref, aligned_target)
+            if oks > max_oks:
+                max_oks = oks
+                max_idx = i
+                max_pts = aligned_target
+        return max_pts, max_idx
+
+    def match(self, pts_out_path):
+        # create directory
+        if not os.path.exists(pts_out_path):
+            os.makedirs(pts_out_path)
+
+        # Load predictions
+        bu_estimations = json.load(open(self.btm_up_path, "rb"))
+        td_estimations = json.load(open(self.top_down_path, "rb"))
+
+        # # match
+        results = []
+        image_id = 0
+        length = len(td_estimations)
+        for annotation in range(length):
+
+            bu_pts = bu_estimations[annotation]["keypoints"]
+            bu_pts = np.float32(bu_pts).transpose(
+                [0, 2, 1]
+            )  # Keep axis 0 at 0, put axis 2 at 1, put axis 1 at 2 (so swap 1 and 2)
+
+            buff_p = []
+            for p in td_estimations[annotation]:
+                p_aligned, idx = self._best_match(p, bu_pts)
+                buff_p.append(p_aligned)
+
+            results.append(buff_p)
+
+            cur_image_id = bu_estimations[annotation]["image_id"]
+            if image_id != cur_image_id or annotation == length - 1:
+
+                results.append(buff_p)
+                pickle.dump(
+                    results, open(os.path.join(pts_out_path, "%d.pkl" % image_id), "wb")
+                )
+                image_id = cur_image_id
+                results = []
+
+
+def procrustes(predicted, target):
+    predicted = predicted.T
+    target = target.T
+    predicted = predicted[None, ...]
+    target = target[None, ...]
+
+    muX = np.mean(target, axis=1, keepdims=True)
+    muY = np.mean(predicted, axis=1, keepdims=True)
+
+    X0 = target - muX
+    Y0 = predicted - muY
+
+    normX = np.sqrt(np.sum(X0**2, axis=(1, 2), keepdims=True))
+    normY = np.sqrt(np.sum(Y0**2, axis=(1, 2), keepdims=True))
+
+    X0 /= normX
+    Y0 /= normY
+
+    H = np.matmul(X0.transpose(0, 2, 1), Y0)
+    U, s, Vt = np.linalg.svd(H)
+    V = Vt.transpose(0, 2, 1)
+    R = np.matmul(V, U.transpose(0, 2, 1))
+
+    # Avoid improper rotations (reflections), i.e. rotations with det(R) = -1
+    sign_detR = np.sign(np.expand_dims(np.linalg.det(R), axis=1))
+    V[:, :, -1] *= sign_detR
+    s[:, -1] *= sign_detR.flatten()
+    R = np.matmul(V, U.transpose(0, 2, 1))  # Rotation
+
+    tr = np.expand_dims(np.sum(s, axis=1, keepdims=True), axis=2)
+
+    a = tr * normX / normY  # Scale
+    t = muX - a * np.matmul(muY, R)  # Translation
+
+    # Perform rigid transformation on the input
+    predicted_aligned = a * np.matmul(predicted, R) + t
+    return predicted_aligned[0].T
+
+
+matcher = PoseMatcher(
+    top_down_path="results_keypoints_td.json",
+    btm_up_path="results_keypoints_bu.json",
+)
+matcher.match(
+    pts_out_path="/output",
+)
