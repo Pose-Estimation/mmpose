@@ -4,6 +4,8 @@ import json
 import sys
 import os
 import random
+from tqdm import tqdm
+import pickle
 
 PATH_TO_VIDEOPOSE = input("Enter the absolute path to your video_pose directory:")
 VIDEO_POSE_TYPES = {"No_penalty": 0, "Slashing": 1, "Tripping": 2}
@@ -34,6 +36,23 @@ imageHeight = data["images"][0]["height"]
 masking_data = data.copy()
 shifting_data = data.copy()
 zeroing_data = data.copy()
+
+# function to format keypoints in required format for integration network 
+def format_keypoints(keypoints):
+    x_coord = []
+    y_coord = []
+    confidence = []
+    split = np.split(np.array(keypoints), len(keypoints) // 3)
+
+    for x, y, c in split:
+        x_coord.append(x)
+        y_coord.append(y)
+        confidence.append(c)
+
+    return np.array(
+        [np.array(x_coord),
+            np.array(y_coord),
+            np.array(confidence)])
 
 ############### MASKING ################
 for player in masking_data["annotations"] :
@@ -108,3 +127,40 @@ zeroingPath = f"{PATH_TO_VIDEOPOSE}/train/zeroing-coco.json"
 zeroingFile = open(zeroingPath, "w")
 zeroingJson = json.dump(zeroing_data, zeroingFile, indent=4)
 zeroingFile.close()
+
+# choose two augmentation types randomly 
+aug_types = ["mask", "shift", "zero"]
+chosen_augs = random.sample(aug_types, 2)
+
+# concatenate results based on the two random augmentations chosen 
+if "mask" in chosen_augs and "shift" in chosen_augs:
+    ...
+
+elif "mask" in chosen_augs and "zero" in chosen_augs:
+    ...
+
+elif "shift" in chosen_augs and "zero" in chosen_augs:
+    ...
+
+# modify json file into required format for integration network 
+augmented_file = f"{PATH_TO_VIDEOPOSE}/train/double_augmented-coco.json" # <== this will be the file that is saved from concatenating 
+f = open(augmented_file)
+augmented_data = json.load(f)
+f.close()
+
+# define directory to store the new file
+PATH_TO_AUGMENTED = input("Enter the absolute path in which you would like to store the augmented data:")
+results = []
+prev = None
+
+for t in tqdm(augmented_data):
+    img_id = t['image_id']
+
+    if not (prev and prev == img_id):
+        formatted_kp = format_keypoints(t["keypoints"])
+        pickle.dump(results, open(os.path.join(PATH_TO_AUGMENTED, '%d.pkl' % img_id), 'wb'))
+        results.clear()
+        results.append(formatted_kp)
+    
+    prev = img_id
+
