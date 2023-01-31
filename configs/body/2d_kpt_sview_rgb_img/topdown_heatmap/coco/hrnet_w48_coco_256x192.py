@@ -174,7 +174,7 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = '/home/vortex/stavmits/capstone/video_pose/video_pose/full_data'
+data_root = 'C:/Users/stavro/Desktop/capstone/video_pose/video_pose/full_data'
 data = dict(
     samples_per_gpu=2,
     workers_per_gpu=2,
