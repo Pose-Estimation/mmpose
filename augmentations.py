@@ -6,6 +6,7 @@ import os
 import random
 from tqdm import tqdm
 import pickle
+import glob
 
 PATH_TO_VIDEOPOSE = input("Enter the absolute path to your video_pose directory:")
 VIDEO_POSE_TYPES = {"No_penalty": 0, "Slashing": 1, "Tripping": 2}
@@ -128,39 +129,64 @@ zeroingFile = open(zeroingPath, "w")
 zeroingJson = json.dump(zeroing_data, zeroingFile, indent=4)
 zeroingFile.close()
 
+print("Done augmenting...")
+
 # choose two augmentation types randomly 
 aug_types = ["mask", "shift", "zero"]
 chosen_augs = random.sample(aug_types, 2)
 
+print("The random augmentations chosen are: " + str(chosen_augs))
+
+# write function to concatenate two json files
+def concatenateJson(file1, file2, outputFile):
+    result = []
+
+    with open(file1, "r") as infile:
+         result.append(json.load(infile))
+    with open(file2, "r") as infile:
+         result.append(json.load(infile))
+    
+    all_images = []
+    all_annotations = []
+    for json_file in result:
+        all_annotations += json_file["annotations"]
+    all_images = result[1]["images"]
+    jsonMerged = open(outputFile, 'w')
+    json.dump({ "images": all_images, "annotations": all_annotations }, jsonMerged, indent=4)
+    jsonMerged.close()
+
+augmented_file = f"{PATH_TO_VIDEOPOSE}/train/double_augmented-coco.json" # <== this will be the file that is saved from concatenating 
 # concatenate results based on the two random augmentations chosen 
 if "mask" in chosen_augs and "shift" in chosen_augs:
-    ...
+    concatenateJson(maskingPath, shiftingPath, augmented_file)
 
 elif "mask" in chosen_augs and "zero" in chosen_augs:
-    ...
+    concatenateJson(maskingPath, zeroingPath, augmented_file)
 
 elif "shift" in chosen_augs and "zero" in chosen_augs:
-    ...
+    concatenateJson(shiftingPath, zeroingPath, augmented_file)
 
 # modify json file into required format for integration network 
-augmented_file = f"{PATH_TO_VIDEOPOSE}/train/double_augmented-coco.json" # <== this will be the file that is saved from concatenating 
 f = open(augmented_file)
 augmented_data = json.load(f)
 f.close()
 
-# define directory to store the new file
-PATH_TO_AUGMENTED = input("Enter the absolute path in which you would like to store the augmented data:")
-results = []
-prev = None
+print("Done concatenating...")
 
-for t in tqdm(augmented_data):
-    img_id = t['image_id']
+# # # define directory to store the new file
+# PATH_TO_AUGMENTED = input("Enter the absolute path in which you would like to store the augmented data:")
 
-    if not (prev and prev == img_id):
-        formatted_kp = format_keypoints(t["keypoints"])
-        pickle.dump(results, open(os.path.join(PATH_TO_AUGMENTED, '%d.pkl' % img_id), 'wb'))
-        results.clear()
-        results.append(formatted_kp)
+# # format the keypoints into pkl
+# results = []
+# prev = None
+# for t in tqdm(augmented_data):
+#     img_id = t['image_id']
+
+#     if not (prev and prev == img_id):
+#         formatted_kp = format_keypoints(t["keypoints"])
+#         pickle.dump(results, open(os.path.join(PATH_TO_AUGMENTED, '%d.pkl' % img_id), 'wb'))
+#         results.clear()
+#         results.append(formatted_kp)
     
-    prev = img_id
+#     prev = img_id
 
