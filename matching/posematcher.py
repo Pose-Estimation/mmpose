@@ -5,7 +5,7 @@ import numpy as np
 import os
 from matching.norm_pose import procrustes
 from tqdm import tqdm
-
+from utils import format_keypoints
 
 class PoseMatcher():
 
@@ -38,22 +38,6 @@ class PoseMatcher():
                 max_pts = aligned_target
         return max_pts, max_idx
 
-    def _format_keypoints(self, keypoints):
-        x_coord = []
-        y_coord = []
-        confidence = []
-        split = np.split(np.array(keypoints), len(keypoints) // 3)
-
-        for x, y, c in split:
-            x_coord.append(x)
-            y_coord.append(y)
-            confidence.append(c)
-
-        return np.array(
-            [np.array(x_coord),
-             np.array(y_coord),
-             np.array(confidence)])
-
     def match(self, pts_out_path):
         # create directory
         if not os.path.exists(pts_out_path):
@@ -77,10 +61,10 @@ class PoseMatcher():
         for t in tqdm(td_estimations):
             img_id = t['image_id']
 
-            td_pts = self._format_keypoints(t["keypoints"])
+            td_pts = format_keypoints(t["keypoints"])
             # match
             bu_pred = bu_estimations[img_id]
-            bu_pred = np.array([self._format_keypoints(pred["keypoints"]) for pred in bu_pred])
+            bu_pred = np.array([format_keypoints(pred["keypoints"]) for pred in bu_pred])
             p_aligned, _ = self._best_match(td_pts, bu_pred)
             if prev is None or not prev == img_id:
                 pickle.dump(
