@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-import tqdm
+from tqdm import tqdm
 from train_dataset import TrainInteDataset
 
 from networkinte import IntegrationNet
@@ -10,14 +10,16 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # train the network
 def train_model(net, criterion, optimizer, num_epochs, dataset_loader):
-    for epoch in tqdm(num_epochs):  # loop over the dataset multiple times
+    for epoch in tqdm(range(num_epochs)):  # loop over the dataset multiple times
         print("Training epoch %d" % (epoch + 1))
 
         running_loss = 0.0
         for i, data in enumerate(dataset_loader):
             # get the inputs; data is a list of [inputs, labels]
 
-            inputs, labels = data[0].to(device), data[1].to(device)
+            inputs, labels = torch.tensor(data[0]).to(device), torch.tensor(data[1]).to(
+                device
+            )
             # zero the parameter gradients
             optimizer.zero_grad()
 
@@ -40,4 +42,13 @@ if __name__ == "__main__":
     )
     training_file_path = f"{PATH_TO_VIDEOPOSE}/train/train-coco.json"
     loader = TrainInteDataset(training_file_path)
-    train_model(IntegrationNet, torch.nn.MSELoss, torch.optim.Adam, 100, loader)
+    integration_net = IntegrationNet()
+    pts_dumb = torch.zeros(2, 84)
+    integration_net(pts_dumb)
+    train_model(
+        integration_net,
+        torch.nn.MSELoss(),
+        torch.optim.Adam(integration_net.parameters(), lr=0.001),
+        100,
+        loader,
+    )

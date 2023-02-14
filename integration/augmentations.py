@@ -3,9 +3,6 @@ from typing import List
 import random
 import numpy as np
 
-PATH_TO_VIDEOPOSE = input(
-    "Enter the absolute path to your video_pose/full_data directory:"
-)
 VIDEO_POSE_TYPES = {"No_penalty": 0, "Slashing": 1, "Tripping": 2}
 
 # The number of joints to occlude/shift. As we experiment and try to improve our model, we may need to adjust

@@ -18,11 +18,11 @@ class TrainInteDataset:
         annotations = data["annotations"]
         augmentation_funcs = [mask_keypoints, zero_keypoints, shift_keypoints]
         for pose in annotations:
-            keypoints = pose[keypoints]
+            keypoints = pose["keypoints"]
             ground_truth_keypoints = keypoints.copy()
 
             # Setting confidence to 1 for ground truth
-            for i in range(len(pose) // 3):
+            for i in range(len(ground_truth_keypoints) // 3):
                 ground_truth_keypoints[2 + (i * 3)] = 1
             self.ground_truth.append(self.format_keypoints(ground_truth_keypoints))
 
@@ -54,8 +54,11 @@ class TrainInteDataset:
 
         return source_pts, ground_truth
 
-    # From Viet's code in pose matching branch
-    def _format_keypoints(self, keypoints):
+    # From matching/utils.py
+    def format_keypoints(self, keypoints):
+        """
+        Format keypoints
+        """
         x_coord = []
         y_coord = []
         confidence = []
