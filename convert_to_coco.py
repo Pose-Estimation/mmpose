@@ -94,7 +94,6 @@ for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
                 image_id = 0
                 for frame in json_file:
                     for key, value in frame.items():
-
                         if key == "frameNum":
                             image_id = value
                         else:
