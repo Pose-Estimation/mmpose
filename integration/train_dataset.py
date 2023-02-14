@@ -24,13 +24,13 @@ class TrainInteDataset:
             # Setting confidence to 1 for ground truth
             for i in range(len(pose) // 3):
                 ground_truth_keypoints[2 + (i * 3)] = 1
-            self.ground_truth.append(ground_truth_keypoints)
+            self.ground_truth.append(self.format_keypoints(ground_truth_keypoints))
 
             # Randomly choose an augmentation
             augmented_keypoints = random.choice(augmentation_funcs)(
                 ground_truth_keypoints.copy()
             )
-            self.augmentations.append(augmented_keypoints)
+            self.augmentations.append(self.format_keypoints(augmented_keypoints))
 
     def __iter__(self):
         self.pos = 0
@@ -53,3 +53,17 @@ class TrainInteDataset:
         self.pos += 1
 
         return source_pts, ground_truth
+
+    # From Viet's code in pose matching branch
+    def _format_keypoints(self, keypoints):
+        x_coord = []
+        y_coord = []
+        confidence = []
+        split = np.split(np.array(keypoints), len(keypoints) // 3)
+
+        for x, y, c in split:
+            x_coord.append(x)
+            y_coord.append(y)
+            confidence.append(c)
+
+        return np.array([np.array(x_coord), np.array(y_coord), np.array(confidence)])

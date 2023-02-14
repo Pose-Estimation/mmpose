@@ -7,14 +7,13 @@ from matching.norm_pose import procrustes
 from tqdm import tqdm
 from utils import format_keypoints
 
-class PoseMatcher():
 
+class PoseMatcher:
     def __init__(self, top_down_path, btm_up_path):
         self.top_down_path = top_down_path
         self.btm_up_path = btm_up_path
 
     def _best_match(self, ref, targets):
-
         def OKS(p1, p2):
             sigma = 25
             # selected_idx = np.int64([14, 8,9, 11,12, 5,6, 2,3])
@@ -59,18 +58,20 @@ class PoseMatcher():
         results = []
 
         for t in tqdm(td_estimations):
-            img_id = t['image_id']
+            img_id = t["image_id"]
 
             td_pts = format_keypoints(t["keypoints"])
             # match
             bu_pred = bu_estimations[img_id]
-            bu_pred = np.array([format_keypoints(pred["keypoints"]) for pred in bu_pred])
+            bu_pred = np.array(
+                [format_keypoints(pred["keypoints"]) for pred in bu_pred]
+            )
             p_aligned, _ = self._best_match(td_pts, bu_pred)
             if prev is None or not prev == img_id:
                 pickle.dump(
-                    results,
-                    open(os.path.join(pts_out_path, '%d.pkl' % img_id), 'wb'))
+                    results, open(os.path.join(pts_out_path, "%d.pkl" % img_id), "wb")
+                )
                 results.clear()
             results.append(p_aligned)
-                
+
             prev = img_id

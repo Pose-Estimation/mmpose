@@ -30,14 +30,14 @@ def train_model(net, criterion, optimizer, num_epochs, dataset_loader):
             # print statistics
             running_loss += loss.item()
             if i % 25 == 24:  # print every 100 mini-batches
-                print("\t[Minibatches %d] loss: %.4f" %
-                      (i + 1, running_loss / 25))
+                print("\t[Minibatches %d] loss: %.4f" % (i + 1, running_loss / 25))
                 running_loss = 0.0
 
 
 if __name__ == "__main__":
     PATH_TO_VIDEOPOSE = input(
-        "Enter the absolute path to your video_pose/full_data directory:")
+        "Enter the absolute path to your video_pose/full_data directory:"
+    )
     training_file_path = f"{PATH_TO_VIDEOPOSE}/train/train-coco.json"
     loader = TrainInteDataset(training_file_path)
     train_model(IntegrationNet, torch.nn.MSELoss, torch.optim.Adam, 100, loader)

@@ -26,14 +26,18 @@ def mask_keypoints(player_keypoints) -> List[List[int]]:
     Masking
     """
     # the number of joints to mask, randomly between 3 and 5
-    numToMask = random.randint(MIN_JOINTS_TO_MASK, MAX_JOINTS_TO_MASK)
+    num_to_mask = random.randint(MIN_JOINTS_TO_MASK, MAX_JOINTS_TO_MASK)
     # which joints are masked
-    jointsToMask = random.sample(range(14), numToMask)
+    joints_to_mask = random.sample(range(14), num_to_mask)
     # for each of those joints, set all three variables to 0
-    for i in jointsToMask:
-        player_keypoints[i * 3] = 0
-        player_keypoints[i * 3 + 1] = 0
-        player_keypoints[i * 3 + 2] = 0
+    confidence = random.randint(0, 200) / 1000  # Random confidence from 0.000 to 0.200
+    for joint_index in joints_to_mask:
+        # Confidence
+        player_keypoints[joint_index * 3 + 2] = confidence
+        # Mask
+        player_keypoints[joint_index * 3] = 0
+        player_keypoints[joint_index * 3 + 1] = 0
+        player_keypoints[joint_index * 3 + 2] = 0
     return player_keypoints
 
 
@@ -78,18 +82,18 @@ def shift_keypoints(player_keypoints) -> List[List[int]]:
 
     # TODO currently the same shift (distance and direction) is used for each of the 4-8 joints. Is it better to randomly use different
     # shifts? Will need to experiment. Can do so simply by moving the RNG for distToShift and dirToShift into the for loop below
-    for joint in joints_to_shift:
+    for joint_index in joints_to_shift:
         # Confidence
-        player_keypoints[joint * 3 + 2] = confidence
+        player_keypoints[joint_index * 3 + 2] = confidence
         # Shift
         if dir_to_shift == 0:
-            player_keypoints[joint * 3] += dist_to_shift
+            player_keypoints[joint_index * 3] += dist_to_shift
         elif dir_to_shift == 0:
-            player_keypoints[joint * 3] -= dist_to_shift
+            player_keypoints[joint_index * 3] -= dist_to_shift
         elif dir_to_shift == 0:
-            player_keypoints[joint * 3 + 1] += dist_to_shift
+            player_keypoints[joint_index * 3 + 1] += dist_to_shift
         elif dir_to_shift == 3:
-            player_keypoints[joint * 3 + 1] -= dist_to_shift
+            player_keypoints[joint_index * 3 + 1] -= dist_to_shift
     return player_keypoints
 
 

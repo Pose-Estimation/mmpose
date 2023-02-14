@@ -3,7 +3,7 @@ import numpy as np
 
 def format_keypoints(keypoints):
     """
-        Format keypoints
+    Format keypoints
     """
     x_coord = []
     y_coord = []
@@ -15,7 +15,4 @@ def format_keypoints(keypoints):
         y_coord.append(y)
         confidence.append(c)
 
-    return np.array(
-        [np.array(x_coord),
-            np.array(y_coord),
-            np.array(confidence)])
+    return np.array([np.array(x_coord), np.array(y_coord), np.array(confidence)])
