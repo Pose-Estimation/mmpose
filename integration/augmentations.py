@@ -1,6 +1,7 @@
 import math
 from typing import List
 import random
+import numpy as np
 
 PATH_TO_VIDEOPOSE = input(
     "Enter the absolute path to your video_pose/full_data directory:"
@@ -108,5 +109,11 @@ def zero_keypoints(player_keypoints) -> List[List[int]]:
 
     # Check if we've gotten to a new image; if so, potentially zero the first player depending on the odds
     if random.random() < ODDS_TO_ZERO:
-        player_keypoints *= 0
+        np.zeros(len(player_keypoints))
+
+    confidence = random.randint(0, 200) / 1000  # Random confidence from 0.000 to 0.200
+    for joint_index in range(len(player_keypoints) // 3):
+        # Confidence
+        player_keypoints[joint_index * 3 + 2] = confidence
+
     return player_keypoints
