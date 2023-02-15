@@ -49,10 +49,11 @@ class TrainInteDataset:
         augment = np.float32(augment)
 
         source_pts = np.stack([augment, ground_truth], axis=1)
+        source_pts = source_pts.reshape([1, -1])
 
         self.pos += 1
 
-        return source_pts, ground_truth
+        return source_pts, np.array([ground_truth])
 
     # From matching/utils.py
     def format_keypoints(self, keypoints):

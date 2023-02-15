@@ -45,6 +45,7 @@ if __name__ == "__main__":
     integration_net = IntegrationNet()
     pts_dumb = torch.zeros(2, 84)
     integration_net(pts_dumb)
+    integration_net.to(device)
     train_model(
         integration_net,
         torch.nn.MSELoss(),
