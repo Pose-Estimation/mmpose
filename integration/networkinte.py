@@ -4,6 +4,7 @@ import TorchSUL.Model as M
 
 
 class IntegrationNet(M.Model):
+
     def initialize(self):
         self.fc1 = M.Dense(512, activation=M.PARAM_GELU)
         self.fc2 = M.Dense(512, activation=M.PARAM_GELU)
@@ -19,11 +20,10 @@ class IntegrationNet(M.Model):
 
         bsize = pts.shape[0]
         pts = pts.reshape(bsize, 2, -1)
-        w_pt = x[:,0:1]
+        w_pt = x[:, 0:1]
         w_pt = torch.sigmoid(w_pt)
-        pts = (
-            w_pt * pts[:, 0] + (1 - w_pt) * pts[:, 1]
-        )  # use a weighted-sum term to increase the robustness
+        # use a weighted-sum term to increase the robustness
+        pts = w_pt * pts[:, 0] + (1 - w_pt) * pts[:, 1]
         pts = pts.reshape(bsize, 3, 14)
 
         return pts
