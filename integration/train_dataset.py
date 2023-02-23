@@ -6,10 +6,7 @@ from augmentations import mask_keypoints, zero_keypoints, shift_keypoints
 
 class TrainInteDataset:
 
-    def __init__(self, train_path, batch_size=64):
-        f = open(train_path)
-        data = json.load(f)
-        f.close()
+    def __init__(self, annotations, batch_size=64):
 
         # Ground truth annotation for loss calculation
         self.ground_truth = []
@@ -17,8 +14,6 @@ class TrainInteDataset:
         # Pair of poses
         self.p1 = []
         self.p2 = []
-
-        annotations = data["annotations"]
 
         # Number of batches
         batches = len(annotations) // batch_size
