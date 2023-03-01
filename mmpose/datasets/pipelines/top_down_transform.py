@@ -660,7 +660,7 @@ class TopDownGenerateTarget:
                 target, target_weight = self._msra_generate_target(
                     results['ann_info'], joints_3d, joints_3d_visible,
                     self.sigma)
-                with open('/home/vortex/stavmits/capstone/video_pose/video_pose/topdownheatmaps/topdownheatmaps.npy', 'wb') as f:
+                with open('/home/vortex/stavmits/capstone/video_pose/video_pose/topdownheatmaps/topdownheatmaps' + str(np.random.randint(0, 1000000)) + '.npy', 'wb') as f:
                     np.save(f, target)
 
         elif self.encoding == 'Megvii':
