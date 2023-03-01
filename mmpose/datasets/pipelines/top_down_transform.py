@@ -461,6 +461,9 @@ class TopDownGenerateTarget:
 
         if use_different_joint_weights:
             target_weight = np.multiply(target_weight, joint_weights)
+        
+        with open('/home/vortex/stavmits/capstone/video_pose/video_pose/topdownheatmaps/topdownheatmaps.npy', 'wb') as f:
+            np.save(f, target)
 
         return target, target_weight
 
