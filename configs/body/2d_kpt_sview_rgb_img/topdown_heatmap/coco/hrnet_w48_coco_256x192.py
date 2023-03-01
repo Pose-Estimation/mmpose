@@ -5,7 +5,7 @@ _base_ = [
 evaluation = dict(interval=20, metric='mAP', save_best='AP')
 checkpoint_config = dict(interval=20)
 
-resume_from = '/home/vortex/stavmits/mmpose/work_dirs/hrnet_w48_coco_256x192/epoch_100.pth'
+#resume_from = '/home/vortex/stavmits/mmpose/work_dirs/hrnet_w48_coco_256x192/epoch_100.pth'
 
 optimizer = dict(
     type='Adam',
@@ -134,7 +134,7 @@ train_pipeline = [
     dict(type='TopDownRandomFlip', flip_prob=0.5),
     dict(
         type='TopDownHalfBodyTransform',
-        num_joints_half_body=8,
+        num_joints_half_body=7,
         prob_half_body=0.3),
     dict(
         type='TopDownGetRandomScaleRotation', rot_factor=40, scale_factor=0.5),
@@ -174,7 +174,7 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = 'C:/Users/stavro/Desktop/capstone/video_pose/video_pose/full_data'
+data_root = '/home/vortex/stavmits/capstone/video_pose/video_pose/full_data'
 data = dict(
     samples_per_gpu=2,
     workers_per_gpu=2,
