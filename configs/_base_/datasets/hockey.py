@@ -1,4 +1,3 @@
-# TODO fix colors
 dataset_info = dict(
     dataset_name="hockey",
     paper_info=dict(
@@ -130,7 +129,7 @@ dataset_info = dict(
     },
     # TODO Tune this
     joint_weights=[
-        1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
+        1., 1., 1., 1.2, 1.5, 1., 1.2, 1.5, 1., 1.2, 1.5, 1., 1.2, 1.5,
     ],
     # TODO Tune this
     sigmas=[

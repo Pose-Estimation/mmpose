@@ -4,6 +4,10 @@ __pycache__/
 *$py.class
 **/*.pyc
 
+# Visualizations
+vis_results/
+
+
 # C extensions
 *.so
 

@@ -75,8 +75,8 @@ image_mapping = {}
 
 def create_coco_dict() -> dict:
     """
-    Method that creates a dictionary object with the COCO format
-    https://cocodataset.org/#format-data
+        Method that creates a dictionary object with the COCO format
+        https://cocodataset.org/#format-data
     """
     coco_dict = {}
     coco_dict["images"] = []
@@ -131,7 +131,7 @@ def create_coco_dict() -> dict:
 def get_json_type(frame_id: int, train_list: List[int],
                   validate_list: List[int]):
     """
-    Method that matches an index to a set type (train/validate/test)
+        Method that matches an index to a set type (train/validate/test)
     """
     if frame_id in train_list:
         return "train"
@@ -178,7 +178,6 @@ def main():
             # Retrieve slow motion videos and filter out games
             slowmo = VIDEO_POSE_TYPES[video_dir_name]["slow"]
             games = filtered_videos[video_dir_name].dropna().to_list()
-
             # Randomly assign indices to different sets
             game_count = len(games)
             indices = np.arange(game_count)
@@ -209,7 +208,6 @@ def main():
                     json_type = get_json_type(frame_index, train_list,
                                               val_list)
                     print(f"Converting {game_dir_full_path}...")
-
                     opened_file = open(
                         f"{game_dir_full_path}/{game_dir_name}.json")
                     json_file = json.load(opened_file)
@@ -228,7 +226,6 @@ def main():
                                 f"{game_dir_full_path}/{game_file}")
                             width = img.width
                             height = img.height
-
                             # Copy image to new directory
                             img.save(
                                 f"{PATH_TO_VIDEOPOSE}/full_data/{json_type}/{temp_id}.png"
