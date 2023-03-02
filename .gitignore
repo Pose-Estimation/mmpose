@@ -10,6 +10,8 @@ vis_results/
 *.mp4
 filtered_videos.csv
 
+wandb/
+
 # C extensions
 *.so
 

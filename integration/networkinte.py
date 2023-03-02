@@ -13,11 +13,13 @@ class IntegrationNet(M.Model):
         self.dropout = torch.nn.Dropout(0.1)
 
     def forward(self, pts):
-        # Check if dropout is effective
         x = torch.cat([pts], dim=1)
-        x = self.dropout(self.fc1(x))
-        x = self.dropout(self.fc2(x))
-        x = self.dropout(self.fc3(x))
+        # x = self.dropout(self.fc1(x))
+        # x = self.dropout(self.fc2(x))
+        # x = self.dropout(self.fc3(x))
+        x = self.fc1(x)
+        x = self.fc2(x)
+        x = self.fc3(x)
         x = self.fc4(x)
         
         return x.reshape(pts.shape[0], 3, 14)
