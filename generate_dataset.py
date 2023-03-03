@@ -178,6 +178,16 @@ def main():
             # Retrieve slow motion videos and filter out games
             slowmo = VIDEO_POSE_TYPES[video_dir_name]["slow"]
             games = filtered_videos[video_dir_name].dropna().to_list()
+
+            # Add games with augmentations
+            augmented_games = games.copy()
+            n = 0
+            for i, game in enumerate(games):
+                augmented_games.insert(i * n + 1, f'{game}100')
+                augmented_games.insert(i * n + 2, f'{game}200')
+                n += 3
+            games = augmented_games
+
             # Randomly assign indices to different sets
             game_count = len(games)
             indices = np.arange(game_count)
