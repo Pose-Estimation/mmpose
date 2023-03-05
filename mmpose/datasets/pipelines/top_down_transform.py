@@ -376,6 +376,7 @@ class TopDownGenerateTarget:
         self.valid_radius_factor = valid_radius_factor
         self.target_type = target_type
         self.encoding = encoding
+        self.targets = []
 
     def _msra_generate_target(self, cfg, joints_3d, joints_3d_visible, sigma):
         """Generate the target heatmap via "MSRA" approach.
@@ -462,8 +463,10 @@ class TopDownGenerateTarget:
         if use_different_joint_weights:
             target_weight = np.multiply(target_weight, joint_weights)
         
+        self.targets.append(target)
+        targets = np.array(self.targets)
         with open('/home/vortex/stavmits/capstone/video_pose/video_pose/topdownheatmaps/topdownheatmaps.npz', 'wb') as f:
-            np.savez(f, target)
+            np.savez(f, targets)
         return target, target_weight
 
     def _megvii_generate_target(self, cfg, joints_3d, joints_3d_visible,
