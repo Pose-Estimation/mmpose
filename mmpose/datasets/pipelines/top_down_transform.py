@@ -362,7 +362,7 @@ class TopDownGenerateTarget:
             Paper ref: Huang et al. The Devil is in the Details: Delving into
             Unbiased Data Processing for Human Pose Estimation (CVPR 2020).
     """
-
+    
     def __init__(self,
                  sigma=2,
                  kernel=(11, 11),
@@ -376,6 +376,8 @@ class TopDownGenerateTarget:
         self.valid_radius_factor = valid_radius_factor
         self.target_type = target_type
         self.encoding = encoding
+        self.targets = []
+        self.heatmapCounter = 0
 
     def _msra_generate_target(self, cfg, joints_3d, joints_3d_visible, sigma):
         """Generate the target heatmap via "MSRA" approach.
@@ -461,7 +463,11 @@ class TopDownGenerateTarget:
 
         if use_different_joint_weights:
             target_weight = np.multiply(target_weight, joint_weights)
-
+        
+        self.targets.append(target)
+        with open('/home/vortex/stavmits/capstone/video_pose/video_pose/topdownheatmaps/topdownheatmaps' + str(self.heatmapCounter) + '.npy', 'wb') as f:
+            np.save(f, target)
+        self.heatmapCounter +=1
         return target, target_weight
 
     def _megvii_generate_target(self, cfg, joints_3d, joints_3d_visible,
