@@ -8,6 +8,10 @@ class TrainInteDataset:
 
     def __init__(self, annotations, batch_size=64):
 
+        #Image properties
+        self.width = 640
+        self.height = 360
+
         # Ground truth annotation for loss calculation
         self.ground_truth = []
 
@@ -82,15 +86,13 @@ class TrainInteDataset:
         """
         x_coord = []
         y_coord = []
-        confidence = []
+        # confidence = []
         split = np.split(np.array(keypoints), len(keypoints) // 3)
 
-        for x, y, c in split:
-            x_coord.append(x)
-            y_coord.append(y)
-            confidence.append(c)
+        # Creating individual x,y arrays and normalizing the values based on image sizes
+        for x, y, _ in split:
+            x_coord.append(x / self.width)
+            y_coord.append(y / self.height)
+            # confidence.append(c)
 
-        return np.array(
-            [np.array(x_coord),
-             np.array(y_coord),
-             np.array(confidence)])
+        return np.array([np.array(x_coord), np.array(y_coord)])

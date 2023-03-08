@@ -18,11 +18,17 @@ def train_model(net,
                 num_epochs,
                 dataset_loader,
                 validation_loader,
-                valid_interval=99):
+                valid_interval=99,
+                patience=50):
     bar = tqdm(range(num_epochs))
-    lr_scheduler.LinearLR(optimizer, 1, 0.1, int(num_epochs * 0.8))
+    lr_scheduler.LinearLR(
+        optimizer, 1, 0.5, int(num_epochs * 0.125), verbose=True)
     ms = time.time_ns() // 1000000
     log_file = open(f"./integration/logs{ms}.txt", "w")
+    
+    
+    trigger = 0
+    last_loss = float("inf")
 
     # wandb.watch(net, criterion)
     for epoch in bar:  # loop over the dataset multiple times
@@ -50,7 +56,7 @@ def train_model(net,
         bar.set_description("\nLoss: %.4f" % l)
         log_file.write("EPOCH: %d LOSS %.4f\n" % (epoch, l))
 
-        if epoch and epoch % valid_interval == 0:
+        if epoch % valid_interval == 0:
             net.eval()
             running_loss = 0
             with torch.no_grad():
@@ -61,10 +67,22 @@ def train_model(net,
 
                     loss = criterion(outputs, labels)
                     running_loss += loss.item()
-            validation_loss = "VALIDATION LOSS: %.4f" % (
-                running_loss / len(validation_loader))
-            print(validation_loss)
-            log_file.write(f"{validation_loss}\n")
+                    
+            validation_loss = running_loss / len(validation_loader)
+            validation_string = "VALIDATION LOSS: %.4f" % ( validation_loss)
+            log_file.write(f"{validation_string}\n")
+            print("\n" + validation_string)
+            
+            if validation_loss > last_loss:
+                trigger += 1
+                
+                if trigger == patience:
+                    print(f"Early Stopping Trigger with patience: {patience}")
+                    break
+            else:
+                trigger = 0
+            
+            last_loss = validation_loss
 
             net.train()
 
@@ -99,10 +117,10 @@ if __name__ == "__main__":
     train_loader = TrainInteDataset(train_annotations)
     valid_loader = TrainInteDataset(validation_annotations)
     integration_net = IntegrationNet()
-    pts_dumb = torch.zeros(2, 84)
+    pts_dumb = torch.zeros(2, 56)
     integration_net(pts_dumb)
     integration_net.to(device)
     train_model(integration_net, torch.nn.MSELoss(),
-                torch.optim.Adam(integration_net.parameters(), lr=5e-4), 800,
-                train_loader, valid_loader)
+                torch.optim.Adam(integration_net.parameters(), lr=1e-3), 600,
+                train_loader, valid_loader, 1)
     # wandb.finish()
