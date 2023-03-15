@@ -5,10 +5,8 @@ from augmentations import mask_keypoints, zero_keypoints, shift_keypoints
 
 
 class TrainInteDataset:
-
     def __init__(self, annotations, batch_size=64):
-
-        #Image properties
+        # Image properties
         self.width = 640
         self.height = 360
 
@@ -31,27 +29,50 @@ class TrainInteDataset:
             # Setting confidence to 1 for ground truth
             for i in range(len(ground_truth_keypoints) // 3):
                 ground_truth_keypoints[2 + (i * 3)] = 1
-            self.ground_truth.append(
-                self.format_keypoints(ground_truth_keypoints))
+            self.ground_truth.append(self.format_keypoints(ground_truth_keypoints))
+            self.ground_truth.append(self.format_keypoints(ground_truth_keypoints))
 
             p = random.random()
 
             if p < 0.1:
-                self.p1.append(self.format_keypoints(ground_truth_keypoints))
-                # Randomly choose an augmentation
-                augmented_keypoints = random.choice(augmentation_funcs)(
-                    ground_truth_keypoints.copy())
-                self.p2.append(self.format_keypoints(augmented_keypoints))
-            else:
-                aug1, aug2 = random.choices(augmentation_funcs, k=2)
-                self.p1.append(
-                    self.format_keypoints(aug1(ground_truth_keypoints.copy())))
-                self.p2.append(
-                    self.format_keypoints(aug2(ground_truth_keypoints.copy())))
+                aug1, aug2, aug3 = random.sample(augmentation_funcs, 3)
 
-        #Divide into batches
-        self.ground_truth = np.array_split(
-            np.array(self.ground_truth), batches)
+                # First pair: ground truth + random augmentation 1
+                self.p1.append(self.format_keypoints(ground_truth_keypoints))
+                self.p2.append(
+                    self.format_keypoints(aug1(ground_truth_keypoints.copy()))
+                )
+
+                # Second pair: other 2 augmentations
+                self.p1.append(
+                    self.format_keypoints(aug2(ground_truth_keypoints.copy()))
+                )
+                self.p2.append(
+                    self.format_keypoints(aug3(ground_truth_keypoints.copy()))
+                )
+
+            else:
+                aug1, aug2, aug3 = random.sample(augmentation_funcs, 3)
+                # First pair: two random augmentations
+                self.p1.append(
+                    self.format_keypoints(aug1(ground_truth_keypoints.copy()))
+                )
+                self.p2.append(
+                    self.format_keypoints(aug2(ground_truth_keypoints.copy()))
+                )
+
+                # Second pair: random augmentation from both selected above with other unused one
+                self.p1.append(
+                    self.format_keypoints(aug3(ground_truth_keypoints.copy()))
+                )
+                self.p2.append(
+                    self.format_keypoints(
+                        random.choice([aug1, aug2])(ground_truth_keypoints.copy())
+                    )
+                )
+
+        # Divide into batches
+        self.ground_truth = np.array_split(np.array(self.ground_truth), batches)
         self.p1 = np.array_split(np.array(self.p1), batches)
         self.p2 = np.array_split(np.array(self.p2), batches)
 
