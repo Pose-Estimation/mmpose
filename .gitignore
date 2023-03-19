@@ -11,6 +11,7 @@ vis_results/
 filtered_videos.csv
 
 wandb/
+results/
 
 # C extensions
 *.so
