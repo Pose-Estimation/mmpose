@@ -23,7 +23,7 @@ if __name__ == "__main__":
                 if not os.path.isfile(game_dir_full_path):
                     print(f"Converting {game_dir_full_path}...")
 
-                    f = open(f"{game_dir_full_path}\{game_dir_name}-coco.json")
+                    f = open(f"{game_dir_full_path}/{game_dir_name}-coco.json")
                     data = json.load(f)
                     f.close()
                     data_bboxonly = []
