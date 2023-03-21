@@ -6,8 +6,7 @@ import os
 
 if __name__ == "__main__":
     PATH_TO_VIDEOPOSE = input("Enter the absolute path to your video_pose directory:")
-
-    VIDEO_POSE_TYPES = {"No_penalty": 0, "Slashing": 1, "Tripping": 2, "full_data": 3}
+    VIDEO_POSE_TYPES = {"No_penalty": 0, "Slashing": 1, "Tripping": 2, "full_data": 3 }
 
     annotation_id = 0  # increment this to have unique id for each annotation
     for video_dir_name in os.listdir(PATH_TO_VIDEOPOSE):
