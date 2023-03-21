@@ -4,6 +4,12 @@ __pycache__/
 *$py.class
 **/*.pyc
 
+# Visualizations
+vis_results/
+*.jpg
+*.mp4
+filtered_videos.csv
+
 # C extensions
 *.so
 
