@@ -19,6 +19,7 @@ json_f.close()
 
 # get all the images in the dataset
 filelist= [file for file in os.listdir(f"{PATH_TO_VIDEOPOSE}/{video_dir_name}") if file.endswith('.png')]
+filelist.sort()
 
 print("Total number of images found: " + str(len(filelist)))
 
@@ -34,8 +35,11 @@ if len(filelist) == 0:
     print("Images already moved into directories.")
 
 # get all the newly created directories 
-img_directories = [ f.path for f in os.scandir(f"{PATH_TO_VIDEOPOSE}/{video_dir_name}") if f.is_dir() ]
+img_directories = [ f.name for f in os.scandir(f"{PATH_TO_VIDEOPOSE}/{video_dir_name}") if f.is_dir() ]
 print(str(len(img_directories)) + " directories found")
+img_directories = [int(numeric_string) for numeric_string in img_directories]
+
+img_directories.sort()
 
 # parse through each directory
 annotation_counter = 0
@@ -47,6 +51,7 @@ for directory in img_directories:
    
     # get current_image
     coco_dict["images"] = data_json["images"][annotation_counter]
+    curr_img_id = coco_dict["images"]["id"]
     coco_dict["annotations"] = []
 
     # get annotations for the current image
@@ -54,14 +59,14 @@ for directory in img_directories:
     for player in annotations:
         img_id = player["image_id"]
 
-        if img_id == annotation_counter:
+        if img_id == curr_img_id:
             coco_dict["annotations"].append(player)
 
     # get categories
     coco_dict["categories"] = data_json["categories"]
 
-    annot_str = str(annotation_counter)
-    outputFilenameString = f"{directory}/{annot_str}.json"
+    
+    outputFilenameString = f"{PATH_TO_VIDEOPOSE}/{video_dir_name}/{str(directory)}/{curr_img_id}.json"
     print("Saving " + outputFilenameString)
     outputFile = open(outputFilenameString, "w")
     outputJson = json.dump(coco_dict, outputFile, indent=4)
