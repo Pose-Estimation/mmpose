@@ -5,7 +5,7 @@ import numpy as np
 import os
 from matching.norm_pose import procrustes
 from tqdm import tqdm
-from utils import format_keypoints
+from matching.utils import format_keypoints
 
 
 class PoseMatcher:
@@ -56,6 +56,7 @@ class PoseMatcher:
         td_estimations = json.load(open(self.top_down_path))
         prev = None
         results = []
+        results_export = []
 
         for t in tqdm(td_estimations):
             img_id = t["image_id"]
@@ -71,7 +72,9 @@ class PoseMatcher:
                 pickle.dump(
                     results, open(os.path.join(pts_out_path, "%d.pkl" % img_id), "wb")
                 )
+                results_export.append(results)
                 results.clear()
             results.append(p_aligned)
 
             prev = img_id
+        return results_export

@@ -1,18 +1,16 @@
-import json
-import random
 import numpy as np
 import torch
-from augmentations import mask_keypoints, zero_keypoints, shift_keypoints
+from matching.utils import format_keypoints
 
 
 class TestInteDataset:
-
-    def __init__(self, ground_truth, bottom_up, top_down, batch_size=64):
+    def __init__(
+        self, ground_truth_annots, bottom_up_kpts, top_down_annots, batch_size=64
+    ):
         # Image properties
         self.width = 640
         self.height = 360
-        self.device = torch.device(
-            "cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         # Ground truth annotation for loss calculation
         self.ground_truth = []
 
@@ -20,15 +18,13 @@ class TestInteDataset:
         self.masks = []
 
         # Pair of poses
-        self.bottom_up_kpts = []
+        self.bottom_up_kpts = bottom_up_kpts
         self.top_down_kpts = []
 
         # Number of batches
-        batches = len(annotations) * 2 // batch_size
+        batches = len(ground_truth_annots) * 2 // batch_size
 
-        augmentation_funcs = [mask_keypoints, zero_keypoints, shift_keypoints]
-
-        for pose in ground_truth:
+        for pose in ground_truth_annots:
             ground_truth_keypoints = pose["keypoints"]
 
             mask = []
@@ -40,22 +36,14 @@ class TestInteDataset:
                 ground_truth_keypoints[2 + (i * 3)] = 1
             self.masks.extend([mask, mask])
 
-            self.ground_truth.append(
-                self.format_keypoints(ground_truth_keypoints))
+            self.ground_truth.append(format_keypoints(ground_truth_keypoints))
 
-        for pose in bottom_up:
-            bottom_up_keypoints = pose["keypoints"]
-             self.bottom_up.append(
-                self.format_keypoints(bottom_up_keypoints))
-
-        for pose in top_down:
+        for pose in top_down_annots:
             top_down_keypoints = pose["keypoints"]
-             self.top_down.append(
-                self.format_keypoints(top_down_keypoints))
+            self.top_down.append(format_keypoints(top_down_keypoints))
 
         # Divide into batches
-        self.ground_truth = np.array_split(
-            np.array(self.ground_truth), batches)
+        self.ground_truth = np.array_split(np.array(self.ground_truth), batches)
         self.bottom_up_kpts = np.array_split(np.array(self.bottom_up_kpts), batches)
         self.top_down_kpts = np.array_split(np.array(self.top_down_kpts), batches)
 
@@ -87,21 +75,3 @@ class TestInteDataset:
         mask = torch.tensor(mask).to(self.device)
 
         return source_pts, ground_truth, mask
-
-    # From matching/utils.py
-    def format_keypoints(self, keypoints):
-        """
-        Format keypoints
-        """
-        x_coord = []
-        y_coord = []
-        # confidence = []
-        split = np.split(np.array(keypoints), len(keypoints) // 3)
-
-        # Creating individual x,y arrays and normalizing the values based on image sizes
-        for x, y, _ in split:
-            x_coord.append(x / self.width)
-            y_coord.append(y / self.height)
-            # confidence.append(c)
-
-        return np.array([np.array(x_coord), np.array(y_coord)])

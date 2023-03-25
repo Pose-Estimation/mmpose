@@ -1,18 +1,16 @@
-import json
 import random
 import numpy as np
 import torch
 from augmentations import mask_keypoints, zero_keypoints, shift_keypoints
+from matching.utils import format_keypoints
 
 
 class TrainInteDataset:
-
     def __init__(self, annotations, batch_size=64):
         # Image properties
         self.width = 640
         self.height = 360
-        self.device = torch.device(
-            "cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         # Ground truth annotation for loss calculation
         self.ground_truth = []
 
@@ -41,10 +39,8 @@ class TrainInteDataset:
                 ground_truth_keypoints[2 + (i * 3)] = 1
             self.masks.extend([mask, mask])
 
-            self.ground_truth.append(
-                self.format_keypoints(ground_truth_keypoints))
-            self.ground_truth.append(
-                self.format_keypoints(ground_truth_keypoints))
+            self.ground_truth.append(format_keypoints(ground_truth_keypoints))
+            self.ground_truth.append(format_keypoints(ground_truth_keypoints))
 
             p = random.random()
 
@@ -52,35 +48,29 @@ class TrainInteDataset:
                 aug1, aug2, aug3 = random.sample(augmentation_funcs, 3)
 
                 # First pair: ground truth + random augmentation 1
-                self.p1.append(self.format_keypoints(ground_truth_keypoints))
-                self.p2.append(
-                    self.format_keypoints(aug1(ground_truth_keypoints.copy())))
+                self.p1.append(format_keypoints(ground_truth_keypoints))
+                self.p2.append(format_keypoints(aug1(ground_truth_keypoints.copy())))
 
                 # Second pair: other 2 augmentations
-                self.p1.append(
-                    self.format_keypoints(aug2(ground_truth_keypoints.copy())))
-                self.p2.append(
-                    self.format_keypoints(aug3(ground_truth_keypoints.copy())))
+                self.p1.append(format_keypoints(aug2(ground_truth_keypoints.copy())))
+                self.p2.append(format_keypoints(aug3(ground_truth_keypoints.copy())))
 
             else:
                 aug1, aug2, aug3 = random.sample(augmentation_funcs, 3)
                 # First pair: two random augmentations
-                self.p1.append(
-                    self.format_keypoints(aug1(ground_truth_keypoints.copy())))
-                self.p2.append(
-                    self.format_keypoints(aug2(ground_truth_keypoints.copy())))
+                self.p1.append(format_keypoints(aug1(ground_truth_keypoints.copy())))
+                self.p2.append(format_keypoints(aug2(ground_truth_keypoints.copy())))
 
                 # Second pair: random augmentation from both selected above with other unused one
-                self.p1.append(
-                    self.format_keypoints(aug3(ground_truth_keypoints.copy())))
+                self.p1.append(format_keypoints(aug3(ground_truth_keypoints.copy())))
                 self.p2.append(
-                    self.format_keypoints(
-                        random.choice([aug1,
-                                       aug2])(ground_truth_keypoints.copy())))
+                    format_keypoints(
+                        random.choice([aug1, aug2])(ground_truth_keypoints.copy())
+                    )
+                )
 
         # Divide into batches
-        self.ground_truth = np.array_split(
-            np.array(self.ground_truth), batches)
+        self.ground_truth = np.array_split(np.array(self.ground_truth), batches)
         self.p1 = np.array_split(np.array(self.p1), batches)
         self.p2 = np.array_split(np.array(self.p2), batches)
 
@@ -112,21 +102,3 @@ class TrainInteDataset:
         mask = torch.tensor(mask).to(self.device)
 
         return source_pts, ground_truth, mask
-
-    # From matching/utils.py
-    def format_keypoints(self, keypoints):
-        """
-        Format keypoints
-        """
-        x_coord = []
-        y_coord = []
-        # confidence = []
-        split = np.split(np.array(keypoints), len(keypoints) // 3)
-
-        # Creating individual x,y arrays and normalizing the values based on image sizes
-        for x, y, _ in split:
-            x_coord.append(x / self.width)
-            y_coord.append(y / self.height)
-            # confidence.append(c)
-
-        return np.array([np.array(x_coord), np.array(y_coord)])
