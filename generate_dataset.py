@@ -181,11 +181,9 @@ def main():
 
             # Add games with augmentations
             augmented_games = games.copy()
-            n = 0
             for i, game in enumerate(games):
-                augmented_games.insert(i * n + 1, f'{game}100')
-                augmented_games.insert(i * n + 2, f'{game}200')
-                n += 3
+                augmented_games.insert(i * 3 + 1, f'{game}100')
+                augmented_games.insert(i * 3 + 2, f'{game}200')
             games = augmented_games
 
             # Randomly assign indices to different sets
