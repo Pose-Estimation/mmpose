@@ -32,8 +32,16 @@ if __name__ == "__main__":
     top_down_annots = top_down_data["annotations"]
 
     # Getting ground-truth annotations
-    # TODO: code this
-    ground_truth_annots = "TODO: REPLACE THIS"
+    PATH_TO_GROUND_TRUTH = input(
+        "Enter the absolute path to your ground-truth measurements json"
+    )
+    PATH_TO_GROUND_TRUTH = (
+        "D:\DocumentsD\Captsone\\video_pose\\full_data\\test\\test-bbox-appended.json"
+    )
+    f = open(PATH_TO_GROUND_TRUTH)
+    ground_truth_data = json.load(f)
+    f.close()
+    ground_truth_annots = ground_truth_data["annotations"]
 
     test_loader = TestInteDataset(
         ground_truth_annots, bottom_up_kpts, top_down_annots, batch_size=32
