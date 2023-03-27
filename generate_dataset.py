@@ -189,7 +189,7 @@ def main():
             # Randomly assign indices to different sets
             game_count = len(games)
             indices = np.arange(game_count)
-            np.random.seed(0)
+            np.random.seed(29)
             np.random.shuffle(indices)
             train_index = math.floor(TRAINING_PERCENTAGE * game_count)
             train_list = indices[:train_index]
@@ -208,10 +208,16 @@ def main():
                 if not os.path.isfile(
                         game_dir_full_path) and game_dir_name in games:
                     # Verify if the current video is slowed down
-                    game_number = re.search("[0-9]{2,3}$", game_dir_name)
-                    is_slowed = (
-                        int(game_number.group(0)) in slowmo
-                        if game_number else False)
+                    game_number = re.search("[0-9]{2,6}$", game_dir_name)
+
+                    if game_number:
+                        temp = game_number.group(0)
+                        if len(temp) > 3:
+                            temp = temp[:-3]
+
+                        is_slowed = int(temp) in slowmo
+                    else:
+                        is_slowed = False
 
                     json_type = get_json_type(frame_index, train_list,
                                               val_list)
