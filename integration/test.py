@@ -1,27 +1,91 @@
+import argparse
 from collections import defaultdict
 import json
 import os
 import pickle
+import warnings
 import numpy as np
 import torch
 from tqdm import tqdm
-from test_dataset import TestInteDataset
 import TorchSUL.Model as M
+from matching.utils import format_keypoints_mask
+
+from test_dataset import TestInteDataset
 from networkinte import IntegrationNet
 from matching import posematcher
 
-if __name__ == "__main__":
-    PATH_TO_TOP_DOWN = input("Enter the absolute path to your top-down results json")
-    PATH_TO_TOP_DOWN = "D:\DocumentsD\Captsone\keypoints\\td_keypoints.json"
+# from mmcv import Config
+# from mmpose.models import build_posenet
+# from mmcv.runner import load_checkpoint
+# from mmcv.parallel import MMDataParallel
 
-    PATH_TO_BOTTUM_UP = input("Enter the absolute path to your bottom-up results json")
-    PATH_TO_BOTTUM_UP = "D:\DocumentsD\Captsone\keypoints\\bu_keypoints.json"
+# try:
+#     from mmcv.runner import wrap_fp16_model
+# except ImportError:
+#     warnings.warn('auto_fp16 from mmpose will be deprecated from v0.15.0'
+#                   'Please install mmcv>=1.1.4')
+#     from mmpose.core import wrap_fp16_model
+
+
+def arg_parser():
+    parser = argparse.ArgumentParser(
+        prog='test',
+        description=
+        'Run inference on top-down, bottom-up networks with integration network',
+    )
+    # parser.add_argument('configtd', help='test config file path top-down')
+    # parser.add_argument('checkpointtd', help='checkpoint file top-down')
+    # parser.add_argument('configbu', help='test config file path bottom-up')
+    # parser.add_argument('checkpointbu', help='checkpoint file bottom-up')
+    parser.add_argument(
+        '--td-path', '-td', help='Path to the top-down results')
+    parser.add_argument(
+        '--bu-path', '-bu', help='Path to the bottom-up results')
+    parser.add_argument(
+        '--inte-path', '-inte', help='Path to integration network checkpoint')
+    parser.add_argument(
+        '--gt-path', '-gt', help='Path to ground truth annotations')
+    # parser.add_argument(
+    #     '--gpu-id',
+    #     type=int,
+    #     default=0,
+    #     help='id of gpu to use '
+    #     '(only applicable to non-distributed testing)')
+    args = parser.parse_args()
+    return args
+
+
+# def load_model(cfg, checkpoint):
+#     model = build_posenet(cfg.model)
+#     fp16_cfg = cfg.get('fp16', None)
+#     if fp16_cfg is not None:
+#         wrap_fp16_model(model)
+#     load_checkpoint(model, checkpoint, map_location='cpu')
+
+#     model = MMDataParallel(model, device_ids=[args.gpu_id])
+#     return model
+
+if __name__ == "__main__":
+
+    args = arg_parser()
+
+    PATH_TO_TOP_DOWN = args.td_path
+    PATH_TO_BOTTOM_UP = args.bu_path
+    PATH_TO_GROUND_TRUTH = args.gt_path
+
+    # Load top-down model
+    # cfg = Config.fromfile(args.configtd)
+    # td = load_model(cfg, args.checkpointd)
+
+    # Load bottom_up
+    # cfg = Config.fromfile(args.configbu)
+    # bu = load_model(cfg, args.checkpointbu)
 
     # Match the poses
     print("Matching poses from two branches...")
     matcher = posematcher.PoseMatcher(
         top_down_path=PATH_TO_TOP_DOWN,
-        btm_up_path=PATH_TO_BOTTUM_UP,
+        btm_up_path=PATH_TO_BOTTOM_UP,
     )
     bottom_up_kpts = matcher.match(pts_out_path="./integration/pred_bu/")
 
@@ -31,29 +95,15 @@ if __name__ == "__main__":
     f.close()
     top_down_annots = top_down_data["annotations"]
 
-    # Getting ground-truth annotations
-    PATH_TO_GROUND_TRUTH = input(
-        "Enter the absolute path to your ground-truth measurements json"
-    )
-    PATH_TO_GROUND_TRUTH = (
-        "D:\DocumentsD\Captsone\\video_pose\\full_data\\test\\test-bbox-appended.json"
-    )
-    f = open(PATH_TO_GROUND_TRUTH)
-    ground_truth_data = json.load(f)
-    f.close()
-    ground_truth_annots = ground_truth_data["annotations"]
-
     test_loader = TestInteDataset(
-        ground_truth_annots, bottom_up_kpts, top_down_annots, batch_size=32
-    )
+        bottom_up_kpts, top_down_annots, batch_size=32)
 
     # Initialize/load the network
     net = IntegrationNet()
-    pts_dumb = torch.zeros(2, 84)
+    pts_dumb = torch.zeros(2, 56)
     net(pts_dumb)
 
-    PATH_TO_TD = input("Enter the absolute path to your integration network checkpoint")
-    PATH_TO_TD = "D:\DocumentsD\Captsone\keypoints\inte.pth"
+    PATH_TO_TD = args.inte_path
     M.Saver(net).restore(PATH_TO_TD)
     net.cuda()
 
@@ -61,22 +111,30 @@ if __name__ == "__main__":
     if not os.path.exists("/pred_inte/"):
         os.makedirs("/pred_inte/")
 
+    all_pts = defaultdict(list)
     with torch.no_grad():
-        # TODO: theres no eval in test_integrate or in the source repo when they test the integration network? (https://github.com/3dpose/3D-Multi-Person-Pose/blob/main/calculate_mupots_integrate.py)
-        #     model.eval()
-        #     result = model(input_image)
+        net.eval()
 
-        all_pts = defaultdict(list)
-        for src_pts, src_dep, vid_inst in tqdm(test_loader):
+        for src_pts, img_id in tqdm(test_loader):
             src_pts = torch.from_numpy(src_pts).cuda()
             res_pts = net(src_pts)
             res_pts = res_pts.cpu().numpy()
 
             # save results
-            # TODO change to coco format??
-            i, j = vid_inst
-            all_pts[i].insert(j, res_pts)
+            all_pts[img_id].append(res_pts)
 
-        for k in all_pts:
-            result = np.stack(all_pts[k], axis=1)
-            pickle.dump(result, open("./mupots/pred_inte/%d.pkl" % (k + 1), "wb"))
+    # Calculate PCK
+
+    # Open ground truth annotations
+    f = open(PATH_TO_TOP_DOWN)
+    ground_truth_data = json.load(f)
+    f.close()
+    ground_truth_annots = ground_truth_data["annotations"]
+    ground_truth = []
+    gt_img_ids = []
+
+    for pose in ground_truth_annots:
+        ground_truth.append(format_keypoints_mask(pose["keypoints"]))
+        gt_img_ids.append(pose["image_id"])
+        
+    

@@ -8,9 +8,9 @@ class IntegrationNet(M.Model):
     def initialize(self):
         self.fc1 = M.Dense(512, activation=M.PARAM_GELU)
         self.fc2 = M.Dense(512, activation=M.PARAM_GELU)
-        self.fc3 = M.Dense(256, activation=M.PARAM_GELU)
+        # self.fc3 = M.Dense(256, activation=M.PARAM_GELU)
         self.fc4 = M.Dense(28)
-        self.dropout = torch.nn.Dropout(0.1)
+        self.dropout = torch.nn.Dropout(0.2)
         self.sigmoid = torch.sigmoid
 
     def forward(self, pts):

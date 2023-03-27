@@ -102,8 +102,14 @@ if __name__ == "__main__":
     #         "epochs": 800,
     #     })
 
-    CONFIG = {"lr": 1e-4, "epochs": 800, "batch_size": 32, "weight_decay":0}
-    path = f"./integration/results/{uuid.uuid4()}"
+    CONFIG = {"lr": 1e-4, "epochs": 1000, "batch_size": 128, "weight_decay": 0}
+
+    # Add results directory
+    results_path = './integration/results/'
+    if not os.path.isdir(results_path):
+        os.mkdir('./integration/results')
+
+    path = f"{results_path}{uuid.uuid4()}"
     os.mkdir(path)
     config_f = open(f'{path}/config.txt', 'w')
     json.dump(CONFIG, config_f)
@@ -134,6 +140,12 @@ if __name__ == "__main__":
     pts_dumb = torch.zeros(2, 56)
     integration_net(pts_dumb)
     integration_net.to(device)
+
+    # Write the layers to the config file
+    with open(f'{path}/layers.txt', 'w') as f:
+        for layer in integration_net.modules():
+            f.write(f'{layer}\n')
+
     train_model(
         path, integration_net, torch.nn.MSELoss(),
         torch.optim.Adam(
@@ -141,4 +153,5 @@ if __name__ == "__main__":
             lr=CONFIG["lr"],
             weight_decay=CONFIG["weight_decay"]), CONFIG["epochs"],
         train_loader, valid_loader, 1)
+
     # wandb.finish()
