@@ -180,7 +180,7 @@ data_root = '/home/vortex/stavmits/capstone/hockey_dataset_aug/hockey_dataset/fu
 data = dict(
     samples_per_gpu=32,
     workers_per_gpu=32,
-    train_dataloader=dict(samples_per_gpu=4),
+    train_dataloader=dict(samples_per_gpu=32),
     val_dataloader=dict(samples_per_gpu=1),
     test_dataloader=dict(samples_per_gpu=1),
     train=dict(
