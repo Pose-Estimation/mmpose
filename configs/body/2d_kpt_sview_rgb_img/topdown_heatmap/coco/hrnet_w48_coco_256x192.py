@@ -2,8 +2,8 @@ _base_ = [
     '../../../../_base_/default_runtime.py',
     '../../../../_base_/datasets/hockey.py'
 ]
-evaluation = dict(interval=20, metric='mAP', save_best='AP')
-checkpoint_config = dict(interval=20)
+evaluation = dict(interval=10, metric='mAP', save_best='AP')
+checkpoint_config = dict(interval=10)
 
 resume_from = '/home/vortex/stavmits/mmpose/work_dirs/hrnet_w48_coco_256x192/epoch_100.pth'
 
@@ -90,7 +90,7 @@ data_cfg_train = dict(
     vis_thr=0.2,
     use_gt_bbox=True,
     det_bbox_thr=0.0,
-    bbox_file='/home/vortex/stavmits/capstone/video_pose/video_pose/full_data/train/train-bbox-only.json',
+    bbox_file='/home/vortex/stavmits/capstone/hockey_dataset_aug/hockey_dataset/full_data/train/train-bbox-only.json',
 )
 
 data_cfg = dict(
@@ -106,7 +106,7 @@ data_cfg = dict(
     vis_thr=0.2,
     use_gt_bbox=True,
     det_bbox_thr=0.0,
-    bbox_file='C:/Users/stavro/Desktop/capstone/video_pose/video_pose/full_data/test/test-bbox-only.json',
+    bbox_file='C:/Users/stavro/Desktop/capstone/hockey_dataset_aug/hockey_dataset/full_data/test/test-bbox-only.json',
 )
 
 data_cfg_validate = dict(
@@ -122,7 +122,7 @@ data_cfg_validate = dict(
     vis_thr=0.2,
     use_gt_bbox=True,
     det_bbox_thr=0.0,
-    bbox_file='/home/vortex/stavmits/capstone/video_pose/video_pose/full_data/validate/validate-bbox-only.json',
+    bbox_file='/home/vortex/stavmits/capstone/hockey_dataset_aug/hockey_dataset/full_data/validate/validate-bbox-only.json',
 )
 
 
@@ -134,7 +134,7 @@ train_pipeline = [
     dict(type='TopDownRandomFlip', flip_prob=0.5),
     dict(
         type='TopDownHalfBodyTransform',
-        num_joints_half_body=8,
+        num_joints_half_body=7,
         prob_half_body=0.3),
     dict(
         type='TopDownGetRandomScaleRotation', rot_factor=40, scale_factor=0.5),
@@ -174,7 +174,7 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = 'C:/Users/stavro/Desktop/capstone/video_pose/video_pose/full_data'
+data_root = 'C:/Users/stavro/Desktop/capstone/hockey_dataset_aug/hockey_dataset/full_data'
 data = dict(
     samples_per_gpu=2,
     workers_per_gpu=2,
