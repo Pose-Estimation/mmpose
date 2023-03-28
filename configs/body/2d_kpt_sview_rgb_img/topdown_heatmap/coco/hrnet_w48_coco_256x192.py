@@ -5,7 +5,7 @@ _base_ = [
 evaluation = dict(interval=10, metric='mAP', save_best='AP')
 checkpoint_config = dict(interval=10)
 
-load_from = 'https://download.openmmlab.com/mmpose/top_down/hrnet/hrnet_w48_coco_256x192-b9e0b3ab_20200708.pth'
+#load_from = 'https://download.openmmlab.com/mmpose/top_down/hrnet/hrnet_w48_coco_256x192-b9e0b3ab_20200708.pth'
 
 #resume_from = '/home/vortex/stavmits/mmpose/work_dirs/hrnet_w48_coco_256x192/epoch_100.pth'
 
@@ -108,7 +108,7 @@ data_cfg = dict(
     vis_thr=0.2,
     use_gt_bbox=True,
     det_bbox_thr=0.0,
-    bbox_file='C:/Users/stavro/Desktop/capstone/hockey_dataset_aug/hockey_dataset/full_data/test/test-bbox-only.json',
+    bbox_file='/home/vortex/stavmits/capstone/hockey_dataset_aug/hockey_dataset/full_data/test/test-bbox-only.json',
 )
 
 data_cfg_validate = dict(
@@ -176,7 +176,7 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = 'C:/Users/stavro/Desktop/capstone/hockey_dataset_aug/hockey_dataset/full_data'
+data_root = '/home/vortex/stavmits/capstone/hockey_dataset_aug/hockey_dataset/full_data'
 data = dict(
     samples_per_gpu=32,
     workers_per_gpu=32,
