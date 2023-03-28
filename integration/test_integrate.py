@@ -1,10 +1,10 @@
 import os
+from integration.matching.posematcher import PoseMatcher
 import torch
 import pickle
 import numpy as np
 
 import inteutil
-from matching import posematcher
 import networkinte
 
 from tqdm import tqdm
@@ -14,7 +14,7 @@ from collections import defaultdict
 if __name__ == "__main__":
     ## step 1: match the poses
     print("Matching poses from two branches...")
-    matcher = posematcher.PoseMatcher(
+    matcher = PoseMatcher.PoseMatcher(
         top_down_path="./integration/td_keypoints.json",
         btm_up_path="./integration/bu_keypoints.json",
     )

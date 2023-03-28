@@ -1,10 +1,9 @@
 import argparse
 from collections import defaultdict
 import json
-import os
-import pickle
-import warnings
 import numpy as np
+from integration.matching import posematcher
+from mmpose.core.evaluation.top_down_eval import keypoint_pck_accuracy
 import torch
 from tqdm import tqdm
 import TorchSUL.Model as M
@@ -12,7 +11,6 @@ from matching.utils import format_keypoints_mask
 
 from test_dataset import TestInteDataset
 from networkinte import IntegrationNet
-from matching import posematcher
 
 # from mmcv import Config
 # from mmpose.models import build_posenet
@@ -30,8 +28,7 @@ from matching import posematcher
 def arg_parser():
     parser = argparse.ArgumentParser(
         prog='test',
-        description=
-        'Run inference on top-down, bottom-up networks with integration network',
+        description='Run inference on top-down, bottom-up networks with integration network',
     )
     # parser.add_argument('configtd', help='test config file path top-down')
     # parser.add_argument('checkpointtd', help='checkpoint file top-down')
@@ -55,6 +52,11 @@ def arg_parser():
     return args
 
 
+def normalize_kpt(kpt):
+    norm_kpt = kpt[0, :]/640
+    norm_kpt = norm_kpt[1, :]/360
+    return norm_kpt
+
 # def load_model(cfg, checkpoint):
 #     model = build_posenet(cfg.model)
 #     fp16_cfg = cfg.get('fp16', None)
@@ -65,6 +67,7 @@ def arg_parser():
 #     model = MMDataParallel(model, device_ids=[args.gpu_id])
 #     return model
 
+
 if __name__ == "__main__":
 
     args = arg_parser()
@@ -72,6 +75,8 @@ if __name__ == "__main__":
     PATH_TO_TOP_DOWN = args.td_path
     PATH_TO_BOTTOM_UP = args.bu_path
     PATH_TO_GROUND_TRUTH = args.gt_path
+
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     # Load top-down model
     # cfg = Config.fromfile(args.configtd)
@@ -105,11 +110,7 @@ if __name__ == "__main__":
 
     PATH_TO_TD = args.inte_path
     M.Saver(net).restore(PATH_TO_TD)
-    net.cuda()
-
-    # create paths
-    if not os.path.exists("/pred_inte/"):
-        os.makedirs("/pred_inte/")
+    net.to(device)
 
     all_pts = defaultdict(list)
     with torch.no_grad():
@@ -123,18 +124,36 @@ if __name__ == "__main__":
             # save results
             all_pts[img_id].append(res_pts)
 
-    # Calculate PCK
-
     # Open ground truth annotations
-    f = open(PATH_TO_TOP_DOWN)
+    f = open(PATH_TO_GROUND_TRUTH)
     ground_truth_data = json.load(f)
     f.close()
     ground_truth_annots = ground_truth_data["annotations"]
     ground_truth = []
-    gt_img_ids = []
+    matches = []
+    masks = []
 
+    pck = 0
     for pose in ground_truth_annots:
-        ground_truth.append(format_keypoints_mask(pose["keypoints"]))
-        gt_img_ids.append(pose["image_id"])
-        
-    
+        gt_keypoints, mask = format_keypoints_mask(pose["keypoints"])
+        img_id = pose["imageid"]
+
+        # Calculate PCK
+        pred = all_pts[img_id][0, :] * 640
+        pred = pred[1, :]*360
+
+        match, _ = matcher._best_match(gt_keypoints, pred)
+
+        ground_truth.append(gt_keypoints)
+        masks.append(mask)
+        matches.append(match)
+
+    pck = keypoint_pck_accuracy(matches,
+                                ground_truth, mask, np.ones((len(ground_truth), 2)))[1]
+
+    print("-"*80)
+    print("PCK SCORE IS")
+    print(pck)
+    print("-"*80)
+
+    # Calculate AUC?

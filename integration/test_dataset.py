@@ -18,7 +18,8 @@ class TestInteDataset:
         self.masks = []
 
         # Pair of poses
-        self.bottom_up_kpts = bottom_up_kpts
+        self.bottom_up_kpts = [format_keypoints(
+            kpt, self.width, self.width) for kpt in bottom_up_kpts]
         self.top_down_kpts = []
 
         self.img_id = []
@@ -29,7 +30,8 @@ class TestInteDataset:
         for pose in top_down_annots:
             top_down_keypoints = pose["keypoints"]
             self.img_id.append(pose["image_id"])
-            self.top_down.append(format_keypoints(top_down_keypoints))
+            self.top_down.append(format_keypoints(
+                top_down_keypoints, self.width, self.height))
 
         # Divide into batches
         # self.bottom_up_kpts = np.array_split(

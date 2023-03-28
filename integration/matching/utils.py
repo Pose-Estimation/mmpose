@@ -1,7 +1,7 @@
 import numpy as np 
 
 
-def format_keypoints(keypoints, confidence=False):
+def format_keypoints(keypoints, width, height, confidence=False):
     """
     Format keypoints
     """
@@ -11,8 +11,8 @@ def format_keypoints(keypoints, confidence=False):
     split = np.split(np.array(keypoints), len(keypoints) // 3)
 
     for x, y, c in split:
-        x_coord.append(x)
-        y_coord.append(y)
+        x_coord.append(x / width)
+        y_coord.append(y / height)
         confidence.append(c)
 
     if confidence:
@@ -24,7 +24,7 @@ def format_keypoints(keypoints, confidence=False):
     return np.array([np.array(x_coord), np.array(y_coord)])
 
 
-def format_keypoints_mask(keypoints):
+def format_keypoints_mask(keypoints, width, height):
     """
     Format keypoints with mask
     """
@@ -38,4 +38,4 @@ def format_keypoints_mask(keypoints):
         y_coord.append(y)
         mask.append(v // 2)
 
-    return np.array([np.array(x_coord), np.array(y_coord), np.array(mask)])
+    return np.array([np.array(x_coord), np.array(y_coord)]), np.array(mask)
