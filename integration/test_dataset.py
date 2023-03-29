@@ -44,7 +44,7 @@ class TestInteDataset:
         img_id = self.img_id[self.pos]
 
         source_pts = np.stack([bottom_up_kpts, top_down_kpts], axis=1)
-        source_pts = source_pts.reshape([-1, 84])
+        source_pts = source_pts.reshape([-1, 56])
 
         self.pos += 1
 

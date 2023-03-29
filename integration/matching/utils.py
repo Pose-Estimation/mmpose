@@ -3,7 +3,7 @@ import json
 import numpy as np
 
 
-def format_keypoints(keypoints, width=640, height=360, use_confidence=True):
+def format_keypoints(keypoints, width=640, height=360, use_confidence=False):
     """
     Format keypoints
     """
