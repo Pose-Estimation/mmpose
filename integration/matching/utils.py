@@ -1,7 +1,9 @@
-import numpy as np 
+from collections import defaultdict
+import json
+import numpy as np
 
 
-def format_keypoints(keypoints, width, height, confidence=False):
+def format_keypoints(keypoints, width=640, height=360, use_confidence=True):
     """
     Format keypoints
     """
@@ -15,7 +17,7 @@ def format_keypoints(keypoints, width, height, confidence=False):
         y_coord.append(y / height)
         confidence.append(c)
 
-    if confidence:
+    if use_confidence:
         return np.array(
             [np.array(x_coord),
              np.array(y_coord),
@@ -24,7 +26,7 @@ def format_keypoints(keypoints, width, height, confidence=False):
     return np.array([np.array(x_coord), np.array(y_coord)])
 
 
-def format_keypoints_mask(keypoints, width, height):
+def format_keypoints_mask(keypoints):
     """
     Format keypoints with mask
     """
@@ -36,6 +38,18 @@ def format_keypoints_mask(keypoints, width, height):
     for x, y, v in split:
         x_coord.append(x)
         y_coord.append(y)
-        mask.append(v // 2)
+        mask.append(True if v // 2 else False)
 
     return np.array([np.array(x_coord), np.array(y_coord)]), np.array(mask)
+
+
+def format_annotations(path, confidence=False):
+    # Load predictions
+    estimations = defaultdict(list)
+    predictions = json.load(open(path))
+    for pred in predictions:
+        image_id = pred["image_id"]
+        estimations[image_id].append(
+            format_keypoints(pred["keypoints"], 1, 1, confidence))
+
+    return estimations
