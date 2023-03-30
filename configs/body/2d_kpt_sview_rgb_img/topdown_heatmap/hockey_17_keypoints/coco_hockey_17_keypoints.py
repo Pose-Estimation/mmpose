@@ -88,7 +88,7 @@ data_cfg = dict(
     vis_thr=0.2,
     use_gt_bbox=False,
     det_bbox_thr=0.0,
-    bbox_file='/home/vortex/stavmits/capstone/hockey_dataset_aug/hockey_dataset/full_data/test/test-bbox-only.json',
+    bbox_file='/home/vortex/stavmits/capstone/hockey_dataset_aug/hockey_dataset/full_data/test/test-17-bbox-only-coco.json',
 )
 
 train_pipeline = [
@@ -160,7 +160,7 @@ data = dict(
         dataset_info={{_base_.dataset_info}}),
     test=dict(
         type='TopDownCocoDataset',
-        ann_file=f'{data_root}/test/test-bbox-appended.json',
+        ann_file=f'{data_root}/test/test-17-bbox-appended-coco.json',
         img_prefix=f'{data_root}/test/',
         data_cfg=data_cfg,
         pipeline=test_pipeline,
