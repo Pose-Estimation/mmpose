@@ -88,7 +88,7 @@ data_cfg = dict(
     vis_thr=0.2,
     use_gt_bbox=False,
     det_bbox_thr=0.0,
-    bbox_file='C:/Users/stavro/Desktop/capstone/inference_set_untrained/_2018-01-17-mtl-bos-national87/_2018-01-17-mtl-bos-national87-17-bbox-only-coco.json',
+    bbox_file='/home/vortex/stavmits/capstone/hockey_dataset_aug/hockey_dataset/full_data/test/test-bbox-only.json',
 )
 
 train_pipeline = [
@@ -138,7 +138,7 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = 'C:/Users/stavro/Desktop/capstone/inference_set_untrained'
+data_root = '/home/vortex/stavmits/capstone/hockey_dataset_aug/hockey_dataset/full_data'
 data = dict(
     samples_per_gpu=32,
     workers_per_gpu=2,
@@ -146,22 +146,22 @@ data = dict(
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(
         type='TopDownCocoDataset',
-        ann_file=f'{data_root}/annotations/person_keypoints_train2017.json',
-        img_prefix=f'{data_root}/train2017/',
+        ann_file=f'{data_root}/train/train-bbox-appended.json',
+        img_prefix=f'{data_root}/train/',
         data_cfg=data_cfg,
         pipeline=train_pipeline,
         dataset_info={{_base_.dataset_info}}),
     val=dict(
         type='TopDownCocoDataset',
-        ann_file=f'{data_root}/annotations/person_keypoints_val2017.json',
-        img_prefix=f'{data_root}/val2017/',
+        ann_file=f'{data_root}/validate/validate-bbox-appended.json',
+        img_prefix=f'{data_root}/validate/',
         data_cfg=data_cfg,
         pipeline=val_pipeline,
         dataset_info={{_base_.dataset_info}}),
     test=dict(
         type='TopDownCocoDataset',
-        ann_file=f'{data_root}/_2018-01-17-mtl-bos-national87/_2018-01-17-mtl-bos-national87-17-bbox-appended-coco.json',
-        img_prefix=f'{data_root}/_2018-01-17-mtl-bos-national87/',
+        ann_file=f'{data_root}/test/test-bbox-appended.json',
+        img_prefix=f'{data_root}/test/',
         data_cfg=data_cfg,
         pipeline=test_pipeline,
         dataset_info={{_base_.dataset_info}}),
