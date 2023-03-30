@@ -52,7 +52,7 @@ OS_DIR = ["train", "validate", "test"]
 annotation_id = 0  # increment this to have unique id for each annotation
 for video_dir_name in OS_DIR:
     print(f"Creating JSONs with 17 keypoints in {video_dir_name}:")
-    file_path = f"{PATH_TO_VIDEOPOSE}\{video_dir_name}\{video_dir_name}-coco.json"
+    file_path = f"{PATH_TO_VIDEOPOSE}/{video_dir_name}/{video_dir_name}-coco.json"
     f = open(file_path)
     data = json.load(f)
     f.close()
