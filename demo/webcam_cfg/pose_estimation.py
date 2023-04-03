@@ -16,17 +16,17 @@ executor_cfg = dict(
         # 'DetectorNode':
         # This node performs object detection from the frame image using an
         # MMDetection model.
-        dict(
-            type='DetectorNode',
-            name='detector',
-            model_config='demo/mmdetection_cfg/'
-            'ssdlite_mobilenetv2_scratch_600e_coco.py',
-            model_checkpoint='https://download.openmmlab.com'
-            '/mmdetection/v2.0/ssd/'
-            'ssdlite_mobilenetv2_scratch_600e_coco/ssdlite_mobilenetv2_'
-            'scratch_600e_coco_20210629_110627-974d9307.pth',
-            input_buffer='_input_',  # `_input_` is an executor-reserved buffer
-            output_buffer='det_result'),
+        # dict(
+        #     type='DetectorNode',
+        #     name='detector',
+        #     model_config='demo/mmdetection_cfg/'
+        #     'ssdlite_mobilenetv2_scratch_600e_coco.py',
+        #     model_checkpoint='https://download.openmmlab.com'
+        #     '/mmdetection/v2.0/ssd/'
+        #     'ssdlite_mobilenetv2_scratch_600e_coco/ssdlite_mobilenetv2_'
+        #     'scratch_600e_coco_20210629_110627-974d9307.pth',
+        #     input_buffer='_input_',  # `_input_` is an executor-reserved buffer
+        #     output_buffer='det_result'),
         # 'TopDownPoseEstimatorNode':
         # This node performs keypoint detection from the frame image using an
         # MMPose top-down model. Detection results is needed.
@@ -45,14 +45,13 @@ executor_cfg = dict(
             output_buffer='human_pose'),
         dict(
             type='TopDownPoseEstimatorNode',
-            name='animal pose estimator',
-            model_config='configs/animal/2d_kpt_sview_rgb_img/topdown_heatmap'
-            '/animalpose/hrnet_w32_animalpose_256x256.py',
-            model_checkpoint='https://download.openmmlab.com/mmpose/animal/'
-            'hrnet/hrnet_w32_animalpose_256x256-1aa7f075_20210426.pth',
-            labels=['cat', 'dog', 'horse', 'sheep', 'cow'],
+            name='hockey pose estimator topdown',
+            model_config='configs/body/2d_kpt_sview_rgb_img/topdown_heatmap'
+            '/coco/hrnet_w48_coco_256x192.py',
+            model_checkpoint='demo/epoch_130.pth',
+            labels=['player'],
             input_buffer='human_pose',
-            output_buffer='animal_pose'),
+            output_buffer='human_pose'),
         # 'ObjectAssignerNode':
         # This node binds the latest model inference result with the current
         # frame. (This means the frame image and inference result may be
@@ -61,7 +60,7 @@ executor_cfg = dict(
             type='ObjectAssignerNode',
             name='object assigner',
             frame_buffer='_frame_',  # `_frame_` is an executor-reserved buffer
-            object_buffer='animal_pose',
+            object_buffer='human_pose',
             output_buffer='frame'),
         # 'ObjectVisualizerNode':
         # This node draw the pose visualization result in the frame image.
