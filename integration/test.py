@@ -1,6 +1,8 @@
 import argparse
 from collections import defaultdict
 import json
+import math
+import cv2
 import numpy as np
 from integration.matching import posematcher
 from integration.matching.utils import format_annotations
@@ -115,6 +117,7 @@ if __name__ == "__main__":
         "| Image | Pck Integration | PCK Bottom Up| Pck Top Down\n|:-----:|:----------:|:----------:|:----------:|\n"
     )
 
+    match_pts = defaultdict(list)
     for pose in ground_truth_annots:
         gt_keypoints, mask = format_keypoints_mask(pose["keypoints"])
         img_id = pose["image_id"]
@@ -129,7 +132,9 @@ if __name__ == "__main__":
             td_match = format_pck(
                 matcher._best_match(gt_keypoints, td_formatted[img_id])[0])
 
+            match_pts[img_id].append(match)
             match = format_pck(match)
+
             gt_keypoints = format_pck(gt_keypoints)
 
             mask = mask.reshape(1, 14)
@@ -164,7 +169,19 @@ if __name__ == "__main__":
         f'Overall PCK {pck_total[0]}, Bottom Up: {pck_total[1]}, Top Down: {pck_total[2]}'
     )
     print("-" * 100)
-    print(f'UNMATCHES ANNOTATIONS: {len(missed_annotations)}')
+    print(f'UNMATCHED ANNOTATIONS: {len(missed_annotations)}')
 
     log_file.close()
-    # Calculate AUC?
+
+    # Display keypoints
+    path_to_images = 'C:/Users/Admin/Desktop/Datasets/hockey_dataset/full_data/test'
+    for k, v in match_pts.items():
+        temp_path = f'{path_to_images}/{k}.png'
+        img = cv2.imread(temp_path, cv2.IMREAD_COLOR)
+        for poses in v:
+            for i in range(14):
+                x = poses[0][i]
+                y = poses[1][i]
+                cv2.circle(img, (math.ceil(x), math.ceil(y)), 4, (255, 0, 0), 2)
+
+        cv2.imwrite(f'{PATH_TO_TD}/{k}.png', img)

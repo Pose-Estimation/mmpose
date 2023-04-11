@@ -1,9 +1,9 @@
 import numpy as np
 import torch
 from matching.utils import format_keypoints
+from torch.utils.data import Dataset
 
-
-class TestInteDataset:
+class TestInteDataset(Dataset):
 
     def __init__(self, bottom_up_kpts, top_down_annots, batch_size=64):
         # Image properties

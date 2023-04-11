@@ -25,6 +25,7 @@ class TrainInteDataset:
         batches = len(annotations) * 2 // batch_size
 
         augmentation_funcs = [mask_keypoints, zero_keypoints, shift_keypoints]
+        random.seed(0)
 
         for pose in annotations:
             keypoints = pose["keypoints"]

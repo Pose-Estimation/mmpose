@@ -8,7 +8,7 @@ import TorchSUL.Model as M
 from networkinte import IntegrationNet
 import torch.optim.lr_scheduler as lr_scheduler
 import wandb
-from mmpose.core.evaluation.top_down_eval import keypoint_pck_accuracy
+import matplotlib.pyplot as plt
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -26,20 +26,23 @@ def train_model(path,
     bar = tqdm(
         range(num_epochs), leave=False, bar_format='{l_bar}{bar:10}{r_bar}')
 
-    lr_scheduler.LinearLR(
+    scheduler = lr_scheduler.LinearLR(
         optimizer, 1, 0.5, int(num_epochs * 0.125), verbose=True)
     log_file = open(f"{path}/logs.txt", "w")
 
     trigger = 0
     last_loss = float("inf")
 
+    epochs = list(range(num_epochs))
+    plot_loss = []
+    plot_val_loss = []
+
     # wandb.watch(net, criterion)
     for epoch in bar:  # loop over the dataset multiple times
 
         running_loss = 0.0
         for _, data in enumerate(dataset_loader):
-            # get the inputs; data is a list of [inputs, labels]
-
+            # get the inputs; data is a list of [inputs, labels
             inputs, labels, _ = data
             # zero the parameter gradients
             optimizer.zero_grad()
@@ -55,6 +58,7 @@ def train_model(path,
             running_loss += loss.item()
 
         l = running_loss / len(dataset_loader)
+        plot_loss.append(l)
         bar.set_description(f'Loss: {l:.4}')
         log_file.write("EPOCH: %d LOSS %.6f\n" % (epoch, l))
 
@@ -72,6 +76,7 @@ def train_model(path,
                     running_loss += loss.item()
 
             validation_loss = running_loss / len(validation_loader)
+            plot_val_loss.append(validation_loss)
             validation_string = "VALIDATION LOSS: %.6f" % (validation_loss)
             log_file.write(f"{validation_string}\n")
             print(f"\nVALIDATION LOSS {validation_loss:.4} \n")
@@ -88,6 +93,16 @@ def train_model(path,
             last_loss = validation_loss
 
             net.train()
+        scheduler.step()
+
+    plt.title("Loss per epoch")
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.plot(epochs[100:], plot_loss[100:], label='Loss')
+    plt.plot(epochs[100:], plot_val_loss[100:], label='Validation Loss')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(f'{path}/loss.png')
 
     log_file.close()
     M.Saver(net).save(f'{path}/inte.pth')
@@ -102,7 +117,7 @@ if __name__ == "__main__":
     #         "epochs": 800,
     #     })
 
-    CONFIG = {"lr": 1e-4, "epochs": 1000, "batch_size": 128, "weight_decay": 0}
+    CONFIG = {"lr": 1e-4, "epochs": 600, "batch_size": 32, "weight_decay": 0}
 
     # Add results directory
     results_path = './integration/results/'
